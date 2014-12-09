@@ -55,10 +55,14 @@
 rule Token = parse
     [` ` `\t` `\r`]+    { Token lexbuf } (* whitespace *)
   | "//" [^`\n`]*       { Token lexbuf } (* comment *)
-  | [`\n` `\012`]       { currentLine := !currentLine+1;
+
+  (* Support for multiple platforms! *)
+  | `\n` | `\015` `\012` | `\012`
+                        { currentLine := !currentLine+1;
                           lineStartPos :=  getLexemeStart lexbuf
                            :: !lineStartPos;
                           Token lexbuf } (* newlines *)
+
   | [`0`-`9`]+          { case Int.fromString (getLexeme lexbuf) of
                                NONE   => lexerError lexbuf "Bad integer"
                              | SOME i => Parser.NUM (i, getPos lexbuf) }
