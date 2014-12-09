@@ -409,6 +409,46 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
   how Plus and Minus are implemented for inspiration.
    *)
 
+  | evalExp ( Times(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op *, res1, res2, pos)
+        end
+
+  | evalExp ( DivBy(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+            val res2   = evalExp(e2, vtab, ftab)
+        in  evalBinopNum(op /, res1, res2, pos)
+        end
+
+  | evalExp ( And(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+        in
+          case res1 of
+               BoolVal true =>
+                  let val res2 = evalExp(e2, vtab, ftab) 
+                  in case res2 of
+                        (BoolVal _) as x => x
+                     |  _ => invalidOperand Bool res2 pos
+                  end
+             | (BoolVal false) as x => x
+             | _ => invalidOperand Bool res1 pos
+        end
+
+  | evalExp ( Or(e1, e2, pos), vtab, ftab ) =
+        let val res1   = evalExp(e1, vtab, ftab)
+        in
+          case res1 of
+               (BoolVal true) as x => x
+             | BoolVal false =>
+                  let val res2 = evalExp(e2, vtab, ftab) 
+                  in case res2 of
+                        (BoolVal _) as x => x
+                     |  _ => invalidOperand Bool res2 pos
+                  end
+             | _ => invalidOperand Bool res1 pos
+        end
+
 (* Interpreter for Fasto function calls:
     1. f is the function declaration.
     2. args is a list of (already interpreted) arguments.
