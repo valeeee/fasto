@@ -415,10 +415,10 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
         in  evalBinopNum(op *, res1, res2, pos)
         end
 
-  | evalExp ( DivBy(e1, e2, pos), vtab, ftab ) =
+  | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
             val res2   = evalExp(e2, vtab, ftab)
-        in  evalBinopNum(op /, res1, res2, pos)
+        in  evalBinopNum(Int.quot, res1, res2, pos)
         end
 
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =
@@ -428,10 +428,10 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
                BoolVal true =>
                   let val res2 = evalExp(e2, vtab, ftab) 
                   in case res2 of
-                        (BoolVal _) as x => x
+                        BoolVal _ => res2
                      |  _ => invalidOperand Bool res2 pos
                   end
-             | (BoolVal false) as x => x
+             | BoolVal false => res1
              | _ => invalidOperand Bool res1 pos
         end
 
@@ -439,14 +439,28 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
         let val res1   = evalExp(e1, vtab, ftab)
         in
           case res1 of
-               (BoolVal true) as x => x
+               BoolVal true => res1
              | BoolVal false =>
                   let val res2 = evalExp(e2, vtab, ftab) 
                   in case res2 of
-                        (BoolVal _) as x => x
+                        BoolVal _ => res2
                      |  _ => invalidOperand Bool res2 pos
                   end
              | _ => invalidOperand Bool res1 pos
+        end
+
+  | evalExp ( Not(e, pos), vtab, ftab ) =
+        let val res = evalExp(e, vtab, ftab)
+        in case res of
+                BoolVal x => BoolVal (not x)
+              | _ => invalidOperand Bool res pos
+        end
+
+  | evalExp ( Negate(e, pos), vtab, ftab ) =
+        let val res = evalExp(e, vtab, ftab)
+        in case res of
+                IntVal x => IntVal (~x)
+              | _ => invalidOperand Int res pos
         end
 
 (* Interpreter for Fasto function calls:

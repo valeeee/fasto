@@ -12,7 +12,7 @@ open Fasto.UnknownTypes
 %token <int*(int*int)> NUM
 %token <char*(int*int)> CHARLIT
 %token <(int*int)> PLUS MINUS DEQ EQ LTH
-%token <(int*int)> TIMES DIVBY AND OR NOT NEG TRUE FALSE
+%token <(int*int)> TIMES DIVIDE AND OR NOT NEG TRUE FALSE
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
 %token <(int*int)> COMMA
 %token <(int*int)> FUN FN IOTA REPLICATE MAP REDUCE FILTER SCAN READ WRITE
@@ -24,7 +24,7 @@ open Fasto.UnknownTypes
 %nonassoc NOT
 %left DEQ LTH
 %left PLUS MINUS
-%left TIMES DIVBY
+%left TIMES DIVIDE
 %nonassoc NEG
 
 %start Prog
@@ -83,11 +83,14 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
         | Exp PLUS  Exp  { Plus ($1, $3, $2) }
         | Exp MINUS Exp  { Minus($1, $3, $2) }
         | Exp TIMES  Exp  { Times ($1, $3, $2) }
-        | Exp DIVBY  Exp  { DivBy ($1, $3, $2) }
+        | Exp DIVIDE  Exp  { Divide ($1, $3, $2) }
         | NOT Exp         { Not ($2, $1) }
         | NEG Exp         { Negate ($2, $1) }
         | Exp DEQ   Exp  { Equal($1, $3, $2) }
         | Exp LTH   Exp  { Less ($1, $3, $2) }
+        | Exp AND Exp  { And($1, $3, $2) }
+        | Exp OR Exp   { Or($1, $3, $2) }
+
         | IF Exp THEN Exp ELSE Exp %prec ifprec
                          { If ($2, $4, $6, $1) }
         | ID LPAR Exps RPAR
