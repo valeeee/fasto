@@ -69,6 +69,9 @@ fun invalidOperand tp e pos =
     raise Error("expected " ^ (ppType tp) ^ ", got " ^ (ppType (valueType e)) ^
       " (" ^ (ppVal 0 e) ^ ") instead", pos)
 
+fun invalidValue e pos msg =
+    raise Error("invaluid value " ^ (ppVal 0 e) ^ ", reason: " ^ msg, pos)
+
 fun invalidOperands tps e0 e1 pos =
     let
       val types = map (fn (tp0, tp1) => (ppType tp0) ^ " and " ^ (ppType tp1)) tps
@@ -418,7 +421,9 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
   | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
             val res2   = evalExp(e2, vtab, ftab)
-        in  evalBinopNum(Int.quot, res1, res2, pos)
+        in case res2 of
+                IntVal 0 => invalidOperand Int res2 pos
+              | IntVal _ => evalBinopNum(Int.quot, res1, res2, pos)
         end
 
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =

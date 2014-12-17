@@ -248,9 +248,39 @@ and checkExp ftab vtab (exp : In.Exp)
 
   (* TODO TASK 1: add case for constant booleans (True/False). *)
 
+  (* Already covered in the albove | In.Constant clause *)
+
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
   how Plus and Minus are implemented for inspiration.
    *)
+    | In.Times (e1, e2, pos)
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
+         in (Int,
+             Out.Times (e1_dec, e2_dec, pos))
+         end
+    | In.Divide (e1, e2, pos)
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
+         in (Int,
+             Out.Times (e1_dec, e2_dec, pos))
+         end
+    | In.And (e1, e2, pos)
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
+         in (Bool,
+             Out.And (e1_dec, e2_dec, pos))
+         end
+    | In.Or (e1, e2, pos)
+      => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
+         in (Bool,
+             Out.Or (e1_dec, e2_dec, pos))
+         end
+    | In.Not (e, pos)
+      => let val (e_t, e_dec) = checkExp ftab vtab e
+             val t = unifyTypes e_t Bool
+         in (Bool, Out.Not (e, pos))
+    | In.Negate (e, pos)
+      => let val (e_t, e_dec) = checkExp ftab vtab e
+             val t = unifyTypes e_t Int
+         in (Int, Out.Negate (e, pos))
 
   (* TODO: TASK 2: Add case for Scan. Quite similar to Reduce. *)
 
