@@ -284,9 +284,37 @@ and checkExp ftab vtab (exp : In.Exp)
          in
            (Int, Out.Negate (e_dec, pos))
          end
-    | _ => raise Error("Unknown error.", (~1, ~1))
 
   (* TODO: TASK 2: Add case for Scan. Quite similar to Reduce. *)
+
+    | In.Scan (f, n_exp, arr_exp, _, pos)
+      => let val (n_type, n_dec) = checkExp ftab vtab n_exp
+             val (arr_type, arr_dec) = checkExp ftab vtab arr_exp
+             val elem_type =
+               case arr_type of
+                   Array t => t
+                 | other => raise Error ("Scan: Argument not an array", pos)
+             val (f', f_arg_type) =
+               case checkFunArg (f, vtab, ftab, pos) of
+                   (f', res, [a1, a2]) =>
+                   if a1 = a2 andalso a2 = res
+                   then (f', res)
+                   else raise Error
+                          ("Scan: incompatible function type of "
+                           ^ In.ppFunArg 0 f ^": " ^ showFunType ([a1, a2], res), pos)
+                 | (_, res, args) =>
+                   raise Error ("Scan: incompatible function type of "
+                                ^ In.ppFunArg 0 f ^ ": " ^ showFunType (args, res), pos)
+             fun err (s, t) =
+                 Error ("Scan: unexpected " ^ s ^ " type " ^ ppType t ^
+                        ", expected " ^ ppType f_arg_type, pos)
+         in if elem_type = f_arg_type
+            then if elem_type = n_type
+                 then (Array elem_type,
+                       Out.Scan (f', n_dec, arr_dec, elem_type, pos))
+                 else raise (err ("neutral element", n_type))
+            else raise err ("array element", elem_type)
+         end
 
   (* TODO: TASK 2: Add case for Filter.  Quite similar to map, except that the
      return type is the same as the input array type, and the function must
@@ -296,6 +324,8 @@ and checkExp ftab vtab (exp : In.Exp)
 
    Remember that the generating expressions must be arrays, and the
    condition expressions must be boolean. *)
+
+    | _ => raise Error("TypeChecker.checkExp", (~1, ~1))
 
 and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
