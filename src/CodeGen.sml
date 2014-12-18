@@ -611,11 +611,70 @@ structure CodeGen = struct
 
   (* TODO TASK 1: add case for constant booleans (True/False). *)
 
+  | Constant (BoolVal n, pos) =>
+      if n then
+        [ Mips.LI (place, makeConst 1) ]
+      else
+        [ Mips.LI (place, makeConst 0) ]
+
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
   how Plus and Minus are implemented for inspiration.  Remember that
   And and Or are short-circuiting - look at If to see how that could
   be handled (or your textbook).
    *)
+
+  | Times (e1, e2, pos) =>
+      let val t1 = newName "times_L"
+          val t2 = newName "times_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+      in code1 @ code2 @ [Mips.MUL (place,t1,t2)]
+      end
+  | Divide (e1, e2, pos) =>
+      let val t1 = newName "divide_L"
+          val t2 = newName "divide_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+      in code1 @ code2 @ [Mips.DIV (place,t1,t2)]
+      end
+  | Negate (e, pos) =>
+      let val t = newName "negate"
+          val code = compileExp e vtable t
+      in code @ [Mips.SUB (place,"0",t)]
+      end
+  | Not (e, pos) =>
+      let val t = newName "not"
+          val code = compileExp e vtable t
+      in code @ [Mips.SLTI (place, t, makeConst 1)]
+      end
+  | And (e1, e2, pos) =>
+      let val t1 = newName "and_L"
+          val t2 = newName "and_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+          val merge = newName "and_false"
+      in code1 @
+          [ Mips.LI (place, "0")
+          , Mips.BEQ ("0", t1, merge) ]
+          @ code2 @
+          [ Mips.BEQ ("0", t2, merge)
+          , Mips.LI (place, "1")
+          , Mips.LABEL merge ]
+      end
+  | Or (e1, e2, pos) =>
+      let val t1 = newName "or_L"
+          val t2 = newName "or_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+          val merge = newName "or_false"
+      in code1 @
+          [ Mips.LI (place, "1")
+          , Mips.BEQ (place, t1, merge) ]
+          @ code2 @
+          [ Mips.SLT (place, t2, place)  (* BEQ has fallen through, place *)
+          , Mips.SLT (place, place, "0") (* is still 1, compare, negate *)
+          , Mips.LABEL merge ]
+      end
 
   (* TODO: TASK 2: Add case for Scan.
 
@@ -647,6 +706,7 @@ structure CodeGen = struct
         lambda, then finally move the result of the body to the
         'place' register.
       *)
+    | applyFunArg _ = raise Error ("Lambda unimplemented", (~1, ~1))
 
   (* compile condition *)
   and compileCond c vtable tlab flab =
