@@ -421,9 +421,13 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
   | evalExp ( Divide(e1, e2, pos), vtab, ftab ) =
         let val res1   = evalExp(e1, vtab, ftab)
             val res2   = evalExp(e2, vtab, ftab)
-        in case res2 of
-                IntVal 0 => invalidOperand Int res2 pos
-              | IntVal _ => evalBinopNum(Int.quot, res1, res2, pos)
+        in
+          case res1 of
+                IntVal _ => ( case res2 of
+                                   IntVal 0 => raise Error("Division by zero", pos)
+                                 | IntVal _ => evalBinopNum(Int.quot, res1, res2, pos)
+                                 | _ => invalidOperand Int res2 pos )
+              | _ => invalidOperand Int res1 pos
         end
 
   | evalExp ( And(e1, e2, pos), vtab, ftab ) =
@@ -515,9 +519,10 @@ and evalFunArg (FunName fid, vtab, ftab, callpos) =
       val fexp = SymTab.lookup fid ftab
     in
       case fexp of
-        NONE   => raise Error("Function "^fid^" is not in SymTab!", callpos)
-      | SOME f => (fn aargs => callFun(f, aargs, ftab, callpos), getFunRTP f)
+        SOME f => ((fn aargs => callFun(f, aargs, ftab, callpos)), getFunRTP f)
+      | NONE   => raise Error("Function "^fid^" is not in SymTab!", callpos)
     end
+  | evalFunArg _ = raise Error("Unimplemented.", (~1, ~1))
    (* TODO TASK 3:
 
    Add case for Lambda.  This can be done by constructing an

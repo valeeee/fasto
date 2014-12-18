@@ -8,6 +8,8 @@ structure CopyConstPropFold = struct
 open Fasto
 open Fasto.KnownTypes
 
+exception Error of string * (int * int)
+
 (* A propagatee is something that we can propagate - either a variable
    name or a constant value. *)
 datatype Propagatee = ConstProp of Value
@@ -139,6 +141,8 @@ fun copyConstPropFoldExp vtable e =
         Read (t, pos)
       | Write (e, t, pos) =>
         Write (copyConstPropFoldExp vtable e, t, pos)
+
+      | e => e
 
   (* TODO TASKS 1/4: add cases for Times, Divide, Negate, Not, And, Or.  Look at
   how Plus and Minus are implemented for inspiration.
