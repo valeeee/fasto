@@ -696,6 +696,8 @@ structure CodeGen = struct
    A good solution is to transform the array comprehension to an
    expression using map and filter, then run compileExp on that. *)
 
+  | _ => raise Error ("CodeGen.compileExp", (~1, ~1))
+
   and applyFunArg (FunName s, args, vtable, place, pos) : Mips.Prog =
       let val tmp_reg = newName "tmp_reg"
       in  applyRegs(s, args, tmp_reg, pos) @ [Mips.MOVE(place, tmp_reg)] end
