@@ -12,7 +12,6 @@ generation.
 The main function of interest in this module is:
 
   val checkProg : Fasto.UnknownTypes.Prog -> Fasto.KnownTypes.Prog
-
 *)
 
 open Fasto
@@ -248,7 +247,7 @@ and checkExp ftab vtab (exp : In.Exp)
 
   (* TODO TASK 1: add case for constant booleans (True/False). *)
 
-  (* Already covered in the albove | In.Constant clause *)
+    (* Not neccesary by TA fiat. Already covered in In.Constant case. *)
 
   (* TODO TASK 1: add cases for Times, Divide, Negate, Not, And, Or.  Look at
   how Plus and Minus are implemented for inspiration.
@@ -261,7 +260,7 @@ and checkExp ftab vtab (exp : In.Exp)
     | In.Divide (e1, e2, pos)
       => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Int, e1, e2)
          in (Int,
-             Out.Times (e1_dec, e2_dec, pos))
+             Out.Divide (e1_dec, e2_dec, pos))
          end
     | In.And (e1, e2, pos)
       => let val (_, e1_dec, e2_dec) = checkBinOp ftab vtab (pos, Bool, e1, e2)
@@ -275,12 +274,17 @@ and checkExp ftab vtab (exp : In.Exp)
          end
     | In.Not (e, pos)
       => let val (e_t, e_dec) = checkExp ftab vtab e
-             val t = unifyTypes e_t Bool
-         in (Bool, Out.Not (e, pos))
+             val t = unifyTypes pos (e_t, Bool)
+         in
+           (Bool, Out.Not (e_dec, pos))
+         end
     | In.Negate (e, pos)
       => let val (e_t, e_dec) = checkExp ftab vtab e
-             val t = unifyTypes e_t Int
-         in (Int, Out.Negate (e, pos))
+             val t = unifyTypes pos (e_t, Int)
+         in
+           (Int, Out.Negate (e_dec, pos))
+         end
+    | _ => raise Error("Unknown error.", (~1, ~1))
 
   (* TODO: TASK 2: Add case for Scan. Quite similar to Reduce. *)
 
@@ -297,6 +301,7 @@ and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
          NONE             => raise Error ("Unknown identifier " ^ fname, pos)
        | SOME (ret_type, arg_types, _) => (Out.FunName fname, ret_type, arg_types))
+  | checkFunArg _ = raise Error ("Never happens?", (~1, ~1))
         (* TODO TASK 3:
 
         Add case for In.Lambda.  This can be done by
