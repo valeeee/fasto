@@ -14,7 +14,7 @@ open Fasto.UnknownTypes
 %token <(int*int)> PLUS MINUS DEQ EQ LTH
 %token <(int*int)> TIMES DIVIDE AND OR NOT NEG TRUE FALSE
 %token <(int*int)> LPAR RPAR LBRACKET RBRACKET LCURLY RCURLY
-%token <(int*int)> COMMA
+%token <(int*int)> COMMA ARR
 %token <(int*int)> FUN FN
 %token <(int*int)> IOTA REPLICATE MAP REDUCE FILTER SCAN
 %token <(int*int)> READ WRITE

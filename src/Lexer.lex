@@ -104,5 +104,6 @@ rule Token = parse
   | `{`                 { Parser.LCURLY (getPos lexbuf) }
   | `}`                 { Parser.RCURLY (getPos lexbuf) }
   | `,`                 { Parser.COMMA (getPos lexbuf) }
+  | "=>"                { Parser.ARR (getPos lexbuf) }
   | eof                 { Parser.EOF (getPos lexbuf) }
   | _                   { lexerError lexbuf "Illegal symbol in input" };
