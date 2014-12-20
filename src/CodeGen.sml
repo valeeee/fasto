@@ -683,6 +683,70 @@ structure CodeGen = struct
      by iterating through the input array, calling the given function with the
      accumulator and the current element. *)
 
+  | Scan (binop, acc_exp, arr_exp, tp, pos) =>
+        let val arr_reg  = newName "arr_reg"   
+            val size_reg = newName "size_reg"  
+            val i_reg    = newName "ind_var"   
+            val tmp_reg  = newName "tmp_reg"   
+            val loop_beg = newName "loop_beg"
+            val loop_end = newName "loop_end"
+
+            val acc_reg = newName "acc_reg" (* need accumulator separate from place *)
+
+            val arr_code = compileExp arr_exp vtable arr_reg
+            val header1 = [ Mips.LW(size_reg, arr_reg, "0") ]
+
+            val acc_code = compileExp acc_exp vtable acc_reg
+
+            val dest_reg = newName "dest_reg"
+            val alloc_array = [ Mips.ADDI( tmp_reg, size_reg, "1" ) ]
+                            @ dynalloc( tmp_reg, place, tp )
+                            @ [ Mips.MOVE( dest_reg, place ) ]
+                              
+
+
+            (* Load arr[i] into tmp_reg *)
+            val load_code =
+                case getElemSize tp of
+                    One =>  [ Mips.LB   (tmp_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "1") ]
+                  | Four => [ Mips.LW   (tmp_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "4") ]
+            val store_code =
+                case getElemSize tp of
+                    One =>  [ Mips.SB   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "1") ]
+                  | Four => [ Mips.SW   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "4") ]
+
+            (* Set arr_reg to address of first element instead. *)
+            (* Set i_reg to 0. While i < size_reg, loop. *)
+            val loop_code =
+                [ Mips.ADDI(arr_reg, arr_reg, "4")
+                , Mips.ADDI(dest_reg, dest_reg, "4")
+                , Mips.MOVE(i_reg, "0")
+                , Mips.LABEL(loop_beg) ]
+                @ store_code @
+                [ Mips.SUB(tmp_reg, i_reg, size_reg)
+                , Mips.BGEZ(tmp_reg, loop_end) ]
+
+            (* place := binop(tmp_reg, place) *)
+            val apply_code =
+                applyFunArg(binop, [acc_reg, tmp_reg], vtable, acc_reg, pos)
+
+        in arr_code
+         @ header1
+         @ acc_code
+         @ alloc_array
+         @ loop_code
+         @ load_code
+         @ apply_code
+         @ [ Mips.ADDI(i_reg, i_reg, "1")
+           , Mips.J loop_beg
+           , Mips.LABEL loop_end ]
+        end
+
+
   (* TODO: TASK 2: Add case for Filter.
 
      Start by allocating an array of the same size as the input array.  Then,
@@ -690,6 +754,67 @@ structure CodeGen = struct
      copy it to the result array.  Finally, fix the length-field at the end,
      once you know how many elements that are actually left.  Do not worry
      about wasted space. *)
+
+    | Filter (farg, arr_exp, elem_type, pos) =>
+        let val size_reg = newName "size_reg" (* size of input/output array *)
+            val arr_reg  = newName "arr_reg" (* address of array *)
+            val elem_reg = newName "elem_reg" (* address of single element *)
+            val res_reg = newName "res_reg"
+
+            val arr_code = compileExp arr_exp vtable arr_reg
+
+            val get_size = [ Mips.LW (size_reg, arr_reg, "0") ]
+
+            val addr_reg = newName "addr_reg" (* address of element in new array *)
+            val i_reg = newName "i_reg"
+            val init_regs = [ Mips.ADDI (addr_reg, place, "4")
+                            , Mips.MOVE (i_reg, "0")
+                            , Mips.ADDI (elem_reg, arr_reg, "4") ]
+
+            val loop_beg = newName "loop_beg"
+            val loop_false = newName "loop_false"
+            val loop_end = newName "loop_end"
+            val tmp_reg = newName "tmp_reg"
+            val loop_header = [ Mips.LABEL (loop_beg)
+                              , Mips.SUB (tmp_reg, i_reg, size_reg)
+                              , Mips.BGEZ (tmp_reg, loop_end) ]
+
+            val loop_filter0 =
+                case getElemSize elem_type of
+                    One => Mips.LB(res_reg, elem_reg, "0")
+                           :: applyFunArg(farg, [res_reg], vtable, tmp_reg, pos)
+                           @ [ Mips.ADDI (elem_reg, elem_reg, "1" )
+                             , Mips.BEQ ( tmp_reg, "0", loop_false ) ]
+                  | Four => Mips.LW(res_reg, elem_reg, "0")
+                           :: applyFunArg(farg, [res_reg], vtable, tmp_reg, pos)
+                           @ [ Mips.ADDI ( elem_reg, elem_reg, "4" )
+                             , Mips.BEQ ( tmp_reg, "0", loop_false ) ]
+
+            val loop_filter1 =
+                case getElemSize elem_type of
+                    One => [ Mips.SB (res_reg, addr_reg, "0")
+                           , Mips.ADDI (addr_reg, addr_reg, "1")
+                           , Mips.ADDI (i_reg, i_reg, "1") ]
+                  | Four => [ Mips.SW (res_reg, addr_reg, "0")
+                            , Mips.ADDI (addr_reg, addr_reg, "4")
+                            , Mips.ADDI (i_reg, i_reg, "1") ]
+
+            val loop_filter2 = [ Mips.J loop_beg
+                               , Mips.LABEL loop_false
+                               , Mips.ADDI( size_reg, size_reg, "-1")
+                               , Mips.J loop_beg ]
+
+        in arr_code
+           @ get_size
+           @ dynalloc (size_reg, place, elem_type)
+           @ init_regs
+           @ loop_header
+           @ loop_filter0
+           (* @ loop_filter1
+           @ loop_filter2 *)
+           @ [ Mips.LABEL loop_end
+             , Mips.SW(size_reg, place, "0") ]
+        end
 
   (* TODO TASK 5: add case for ArrCompr.
 

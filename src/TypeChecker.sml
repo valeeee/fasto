@@ -320,6 +320,30 @@ and checkExp ftab vtab (exp : In.Exp)
      return type is the same as the input array type, and the function must
      return bool.  *)
 
+    | In.Filter (f, arr_exp, _, pos)
+      => let val (arr_type, arr_exp_dec) = checkExp ftab vtab arr_exp
+             val elem_type =
+               case arr_type of
+                   Array t => t
+                 | other   => raise Error ("Filter: Argument not an array", pos)
+             val (f', f_res_type, f_arg_type) =
+               case checkFunArg (f, vtab, ftab, pos) of
+                   (f', res, [a1]) => (f', res, a1)
+                 | (_,  res, args) =>
+                   raise Error ("Filter: incompatible function type of "
+                                ^ In.ppFunArg 0 f ^ ":" ^ showFunType (args, res), pos)
+            val () = if f_res_type = Bool then () else 
+                   raise Error ("Filter: incompatible function type of "
+                                ^ In.ppFunArg 0 f ^ ":" ^ showFunType
+                                ([f_arg_type], f_res_type), pos)
+         in if elem_type = f_arg_type
+            then (Array elem_type,
+                  Out.Map (f', arr_exp_dec, elem_type, f_res_type, pos))
+            else raise Error ("Filter: array element types does not match."
+                              ^ ppType elem_type ^ " instead of "
+                              ^ ppType f_arg_type , pos)
+         end
+
   (* TODO TASK 5: add case for ArrCompr.
 
    Remember that the generating expressions must be arrays, and the
