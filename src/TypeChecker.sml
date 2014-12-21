@@ -355,13 +355,22 @@ and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
          NONE             => raise Error ("Unknown identifier " ^ fname, pos)
        | SOME (ret_type, arg_types, _) => (Out.FunName fname, ret_type, arg_types))
-  | checkFunArg _ = raise Error ("Never happens?", (~1, ~1))
         (* TODO TASK 3:
 
         Add case for In.Lambda.  This can be done by
         constructing an appropriate In.FunDec and passing it to
         checkFunWithVtable, then constructing an Out.Lambda from the
         result. *)
+  | checkFunArg (In.Lambda (ret, params, exp, pos), vtab, ftab, pos_x) =
+      let fun addParam (Param (pname, ty), ptable) =
+              case SymTab.lookup pname ptable of
+                    SOME _ => raise Error ("Multiple definitions of parameter name " ^ pname, pos)
+                  | NONE   => SymTab.bind pname ty ptable
+          val ptable = foldl addParam (SymTab.empty()) params
+          val (exp_t, exp_dec) = checkExp ftab (SymTab.combine ptable vtab) exp
+          val ret_t = unifyTypes pos (exp_t, ret)
+          val args_t = map (fn Param(_, ty) => ty) params
+      in (Out.Lambda (ret_t, params, exp_dec, pos), ret_t, args_t) end
 
 (* Check a function declaration, but using a given vtable rather
 than an empty one. *)

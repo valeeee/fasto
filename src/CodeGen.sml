@@ -675,6 +675,11 @@ structure CodeGen = struct
           , Mips.SLT (place, place, "0") (* is still 1, compare, negate *)
           , Mips.LABEL merge ]
       end
+  (* I could have cheated on And and Or to be aliases:
+   * And(x, y) => If(x, y, false)
+   * Or(x, y) => If(x, true, y)
+   * But the above was more fun.
+   *)
 
   (* TODO: TASK 2: Add case for Scan.
 
@@ -702,10 +707,7 @@ structure CodeGen = struct
             val alloc_array = [ Mips.ADDI( tmp_reg, size_reg, "1" ) ]
                             @ dynalloc( tmp_reg, place, tp )
                             @ [ Mips.MOVE( dest_reg, place ) ]
-                              
 
-
-            (* Load arr[i] into tmp_reg *)
             val load_code =
                 case getElemSize tp of
                     One =>  [ Mips.LB   (tmp_reg, arr_reg, "0")
@@ -719,8 +721,6 @@ structure CodeGen = struct
                   | Four => [ Mips.SW   (acc_reg, dest_reg, "0")
                             , Mips.ADDI (dest_reg, dest_reg, "4") ]
 
-            (* Set arr_reg to address of first element instead. *)
-            (* Set i_reg to 0. While i < size_reg, loop. *)
             val loop_code =
                 [ Mips.ADDI(arr_reg, arr_reg, "4")
                 , Mips.ADDI(dest_reg, dest_reg, "4")
@@ -730,7 +730,6 @@ structure CodeGen = struct
                 [ Mips.SUB(tmp_reg, i_reg, size_reg)
                 , Mips.BGEZ(tmp_reg, loop_end) ]
 
-            (* place := binop(tmp_reg, place) *)
             val apply_code =
                 applyFunArg(binop, [acc_reg, tmp_reg], vtable, acc_reg, pos)
 
@@ -810,8 +809,8 @@ structure CodeGen = struct
            @ init_regs
            @ loop_header
            @ loop_filter0
-           (* @ loop_filter1
-           @ loop_filter2 *)
+           @ loop_filter1
+           @ loop_filter2
            @ [ Mips.LABEL loop_end
              , Mips.SW(size_reg, place, "0") ]
         end
@@ -821,7 +820,7 @@ structure CodeGen = struct
    A good solution is to transform the array comprehension to an
    expression using map and filter, then run compileExp on that. *)
 
-  | _ => raise Error ("CodeGen.compileExp", (~1, ~1))
+  | _ => raise Error ("CodeGen.compileExp not Implemented.", (~1, ~1))
 
   and applyFunArg (FunName s, args, vtable, place, pos) : Mips.Prog =
       let val tmp_reg = newName "tmp_reg"
@@ -833,7 +832,11 @@ structure CodeGen = struct
         lambda, then finally move the result of the body to the
         'place' register.
       *)
-    | applyFunArg _ = raise Error ("Lambda unimplemented", (~1, ~1))
+
+    | applyFunArg (Lambda (ret, args, exp, _), regs, vtable, place, _) =
+      let fun addParam ((Param (n, _), r), st) = SymTab.bind n r st
+          val vtable' = foldl addParam vtable (ListPair.zip (args, regs))
+      in compileExp exp vtable' place end
 
   (* compile condition *)
   and compileCond c vtable tlab flab =
