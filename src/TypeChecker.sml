@@ -338,7 +338,7 @@ and checkExp ftab vtab (exp : In.Exp)
                                 ([f_arg_type], f_res_type), pos)
          in if elem_type = f_arg_type
             then (Array elem_type,
-                  Out.Map (f', arr_exp_dec, elem_type, f_res_type, pos))
+                  Out.Filter (f', arr_exp_dec, elem_type, pos))
             else raise Error ("Filter: array element types does not match."
                               ^ ppType elem_type ^ " instead of "
                               ^ ppType f_arg_type , pos)
