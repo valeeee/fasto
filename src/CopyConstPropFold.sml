@@ -105,12 +105,15 @@ fun copyConstPropFoldExp vtable e =
          insert the appropriate Propagatee value in vtable. *)
 
         let val e' = copyConstPropFoldExp vtable e
-            val vtable' =
+            val (vtable', prop) =
                 case e' of 
-                     Constant(v, _) => SymTab.bind name (ConstProp v) vtable
-                   | Var(n, _) => SymTab.bind name (VarProp n) vtable
-                   | _ => vtable
-        in Let (Dec (name, e', decpos),
+                     Constant(v, _) => (SymTab.bind name (ConstProp v) vtable, true)
+                   | Var(n, _) => (SymTab.bind name (VarProp n) vtable, true)
+                   | _ => (vtable, false)
+        in if prop then
+                (* bonus, if we can propagate it, the Let is extraneous *)
+                copyConstPropFoldExp vtable' body
+           else Let (Dec (name, e', decpos),
                 copyConstPropFoldExp vtable' body,
                 pos)
         end
