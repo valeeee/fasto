@@ -37,6 +37,7 @@
        | "bool"         => Parser.BOOL pos
        | "char"         => Parser.CHAR pos
        | "fun"          => Parser.FUN pos
+       | "fn"           => Parser.FN pos
        | "true"         => Parser.TRUE pos
        | "false"        => Parser.FALSE pos
        | "not"          => Parser.NOT pos
