@@ -190,6 +190,20 @@ Implementing shadowing-proofing merely consisted of removing any copied variable
 propagation from the table, thereby allowing for instance, the problematic program
 in the report, to compile successfully.
 
+\section{Further improvements?}
+
+In addition to implementing array comprehensions, a number of interesting optimizations
+could be made in this language:
+
+\begin{itemize}
+    \item Rewriting \verb+if not X then A else B+ into \verb+if X then B else A+
+    \item Adding rewrite rules for De-Morgan's laws.
+    \item Rewrite rules to minimize arithmetic expressions (factorizing/distributing
+        as appropriate to minimize the number of calculations needed.)
+\end{itemize}
+
+Further, it could do well with a modulus operator.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -214,8 +228,292 @@ Karl D. Asmussen, \texttt{twk181}, 1992--11--27} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Code Listings of Interest}
 
+\texttt{CopyConstPropFold.sml}, lines 51--64. My changes made to the
+Minus case of \texttt{copyConstPropFoldExp}.
+\begin{lstlistings}
+      | Minus (e1, e2, pos) =>
+        let val e1' = copyConstPropFoldExp vtable e1
+            val e2' = copyConstPropFoldExp vtable e2
+        in case (e1', e2') of
+               (* added negation case, fixed order of patterns *)
+               (Constant (IntVal 0, _), _) =>
+               Negate (e2', pos)
+             | (_, Constant (IntVal 0, _)) =>
+               e1'
+             | (Constant (IntVal x, _), Constant (IntVal y, _)) =>
+               Constant (IntVal (x - y), pos) (* fixed: was x + y *)
+             | _ =>
+               Minus (e1', e2', pos)
+        end
+\end{lstlistings}
+This is a partial implementation of common algebraic invariants of minus,
+$x - 0 = x, 0 - x = -x$ and provides neater
+(if not more efficent) code under \texttt{fasto -p c}.
+
+\texttt{CopyConstPropFold.sml}, lines 168--184. Implementation of the
+\texttt{Times} case in \texttt{copyConstPropFoldExp}
+\begin{lstlistings}
+      | Times (e1, e2, pos) =>
+        let val e1' = copyConstPropFoldExp vtable e1
+            val e2' = copyConstPropFoldExp vtable e2
+        in case (e1', e2') of
+               (Constant (IntVal 0, _), _) =>
+               Constant (IntVal 0, pos)
+             | (_, Constant (IntVal 0, _)) =>
+               Constant (IntVal 0, pos)
+             | (Constant (IntVal 1, _), _) =>
+               e2'
+             | (_, Constant (IntVal 1, _)) =>
+               e1'
+             | (Constant (IntVal x, _), Constant (IntVal y, _)) =>
+               Constant (IntVal (x*y), pos)
+             | _ =>
+               Times (e1', e2', pos)
+        end
+\end{lstlistings}
+Implements the identities $x\times0=0, x\times1=x$.
+
+Similar identities have been added to the \texttt{Plus} case and
+implemented in the \texttt{Division}, \texttt{And}, and \texttt{Or}
+cases.
+
+\texttt{CodeGen}, lines 645--649. \texttt{Not} case in \texttt{compileExp}:
+\begin{lstlistings}
+  | Not (e, pos) =>
+      let val t = newName "not"
+          val code = compileExp e vtable t
+      in code @ [Mips.SLTI (place, t, makeConst 1)]
+      end
+\end{lstlistings}
+Using \texttt{slti} to perform boolean negation after C-style booleans: 0 is false, everything
+else is true.
 
 
+\texttt{CodeGen.sml}, lines 645--649. \texttt{And} and \texttt{Or} cases in \texttt{compileExp}:
+\begin{lstlistings}
+  | And (e1, e2, pos) =>
+      let val t1 = newName "and_L"
+          val t2 = newName "and_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+          val merge = newName "and_false"
+      in code1 @
+          [ Mips.LI (place, "0")
+          , Mips.BEQ ("0", t1, merge) ]
+          @ code2 @
+          [ Mips.BEQ ("0", t2, merge)
+          , Mips.LI (place, "1")
+          , Mips.LABEL merge ]
+      end
+  | Or (e1, e2, pos) =>
+      let val t1 = newName "or_L"
+          val t2 = newName "or_R"
+          val code1 = compileExp e1 vtable t1
+          val code2 = compileExp e2 vtable t2
+          val merge = newName "or_false"
+      in code1 @
+          [ Mips.LI (place, "1")
+          , Mips.BEQ (place, t1, merge) ]
+          @ code2 @
+          [ Mips.SLT (place, t2, place)  (* BEQ has fallen through, place *)
+          , Mips.SLT (place, place, "0") (* is still 1, compare, negate *)
+          , Mips.LABEL merge ]
+      end
+\end{lstlistings}
+Custom implentation of short-circuiting behavior.
+
+\texttt{CodeGen}, lines 691--746. \texttt{Scan} case in \texttt{compileExp}:
+\begin{lstlistings}
+  | Scan (binop, acc_exp, arr_exp, tp, pos) =>
+        let val arr_reg  = newName "arr_reg"   
+            val size_reg = newName "size_reg"  
+            val i_reg    = newName "ind_var"   
+            val tmp_reg  = newName "tmp_reg"   
+            val loop_beg = newName "loop_beg"
+            val loop_end = newName "loop_end"
+
+            val acc_reg = newName "acc_reg" (* need accumulator separate from place *)
+
+            val arr_code = compileExp arr_exp vtable arr_reg
+            val header1 = [ Mips.LW(size_reg, arr_reg, "0") ]
+
+            val acc_code = compileExp acc_exp vtable acc_reg
+
+            val dest_reg = newName "dest_reg"
+            val alloc_array = [ Mips.ADDI( tmp_reg, size_reg, "1" ) ]
+                            @ dynalloc( tmp_reg, place, tp )
+                            @ [ Mips.MOVE( dest_reg, place ) ]
+
+            val load_code =
+                case getElemSize tp of
+                    One =>  [ Mips.LB   (tmp_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "1") ]
+                  | Four => [ Mips.LW   (tmp_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "4") ]
+            val store_code =
+                case getElemSize tp of
+                    One =>  [ Mips.SB   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "1") ]
+                  | Four => [ Mips.SW   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "4") ]
+
+            val loop_code =
+                [ Mips.ADDI(arr_reg, arr_reg, "4")
+                , Mips.ADDI(dest_reg, dest_reg, "4")
+                , Mips.MOVE(i_reg, "0")
+                , Mips.LABEL(loop_beg) ]
+                @ store_code @
+                [ Mips.SUB(tmp_reg, i_reg, size_reg)
+                , Mips.BGEZ(tmp_reg, loop_end) ]
+
+            val apply_code =
+                applyFunArg(binop, [acc_reg, tmp_reg], vtable, acc_reg, pos)
+
+        in arr_code
+         @ header1
+         @ acc_code
+         @ alloc_array
+         @ loop_code
+         @ load_code
+         @ apply_code
+         @ [ Mips.ADDI(i_reg, i_reg, "1")
+           , Mips.J loop_beg
+           , Mips.LABEL loop_end ]
+        end
+\end{lstlistings}
+Modified version of \texttt{Reduce}. Notice that \verb+store_code+ falls before
+\verb+load_code+ (by virtue of being inside \verb+loop_code+) so as to effect the
+initial accumulator value being the first in the resultant array.
+
+\texttt{CodeGen.sml} line 757--822. \texttt{Filter} case in \texttt{compileExp}:
+\begin{lstlistings}
+    | Filter (farg, arr_exp, tp, pos) =>
+        let val arr_reg  = newName "arr_reg"   
+            val size_reg = newName "size_reg"  
+            val acc_reg = newName "acc_reg"
+            val i_reg    = newName "ind_var"   
+            val tmp_reg  = newName "tmp_reg"   
+            val loop_beg = newName "loop_beg"
+            val loop_end = newName "loop_end"
+
+            val arr_code = compileExp arr_exp vtable arr_reg
+            val header1 = [ Mips.LW(size_reg, arr_reg, "0") ]
+
+            val dest_reg = newName "dest_reg"
+            val alloc_array = dynalloc( size_reg, place, tp )
+                            @ [ Mips.MOVE( dest_reg, place ) ]
+
+            val load_code =
+                case getElemSize tp of
+                    One =>  [ Mips.LB   (acc_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "1") ]
+                  | Four => [ Mips.LW   (acc_reg, arr_reg, "0")
+                            , Mips.ADDI (arr_reg, arr_reg, "4") ]
+            val store_code =
+                case getElemSize tp of
+                    One =>  [ Mips.SB   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "1") ]
+                  | Four => [ Mips.SW   (acc_reg, dest_reg, "0")
+                            , Mips.ADDI (dest_reg, dest_reg, "4") ]
+            
+            val loop_code =
+                [ Mips.ADDI(arr_reg, arr_reg, "4")
+                , Mips.ADDI(dest_reg, dest_reg, "4")
+                , Mips.MOVE(i_reg, "0")
+                , Mips.LABEL(loop_beg)
+                , Mips.SUB(tmp_reg, i_reg, size_reg)
+                , Mips.BGEZ(tmp_reg, loop_end) ]
+            
+            val filter_true = newName "filter_true"
+            val apply_code =
+                applyFunArg(farg, [acc_reg], vtable, tmp_reg, pos) @
+                [ Mips.ADDI(i_reg, i_reg, "1")
+                , Mips.BEQ (tmp_reg, "0", loop_beg) ]
+
+            val loop_end =
+              [ Mips.J loop_beg
+              , Mips.LABEL loop_end
+              , Mips.SUB( dest_reg, dest_reg, place )
+              , Mips.LI(tmp_reg, "4")
+              , Mips.SUB( dest_reg, dest_reg, tmp_reg ) ]
+
+            val compute_size =
+              case getElemSize tp of
+                    One => [Mips.SW(dest_reg, place, "0")]
+                  | Four => [ Mips.SRA( dest_reg, dest_reg, "2" )
+                            , Mips.SW(dest_reg, place, "0")]
+
+        in arr_code
+         @ header1
+         @ alloc_array
+         @ loop_code
+         @ load_code
+         @ apply_code
+         @ store_code
+         @ loop_end
+         @ compute_size
+        end
+\end{lstlistings}
+Heavily based on \texttt{Scan}, Notice in \verb+compute_size+ how shifts are used 
+to effect a division by four.
+
+\texttt{TypeChecker.sml} lines 364--373. \texttt{Lambda} case in \texttt{checkFunArg}:
+\begin{lstlistings}
+  | checkFunArg (In.Lambda (ret, params, exp, pos), vtab, ftab, pos_x) =
+      let fun addParam (Param (pname, ty), ptable) =
+              case SymTab.lookup pname ptable of
+                    SOME _ => raise Error ("Multiple definitions of parameter name " ^ pname, pos)
+                  | NONE   => SymTab.bind pname ty ptable
+          val ptable = foldl addParam (SymTab.empty()) params
+          val (exp_t, exp_dec) = checkExp ftab (SymTab.combine ptable vtab) exp
+          val ret_t = unifyTypes pos (exp_t, ret)
+          val args_t = map (fn Param(_, ty) => ty) params
+      in (Out.Lambda (ret_t, params, exp_dec, pos), ret_t, args_t) end
+\end{lstlistings}
+Hand-written type checking, not depending on \texttt{checkFunWithVtable}, although it does
+copy the addParam function.
+
+\texttt{CodeGen.sml} lines 843--846. \texttt{Lambda} case in \texttt{compileFunArgWithVtable}:
+\begin{lstlistings}
+    | applyFunArg (Lambda (ret, args, exp, _), regs, vtable, place, _) =
+      let fun addParam ((Param (n, _), r), st) = SymTab.bind n r st
+          val vtable' = foldl addParam vtable (ListPair.zip (args, regs))
+      in compileExp exp vtable' place end
+\end{lstlistings}
+A neat little piece of code.
+
+\texttt{CopyConstPropFold.sml}, lines 98--122. \texttt{Let} case of
+\texttt{copyConstPropFoldExp}:
+\begin{lstlistings}
+      | Let (Dec (name, e, decpos), body, pos) =>
+
+        (* TODO TASK 4: This case currently does nothing.
+
+         You must extend this case to expand the vtable' with whatever
+         Propagatee that you can get out of e'.  That is, inspect e'
+         to see whether it is a constant or variable, and if so,
+         insert the appropriate Propagatee value in vtable. *)
+
+        let val e' = copyConstPropFoldExp vtable e
+            val (vtable', prop) =
+                case e' of 
+                     Constant(v, _) => (SymTab.bind name (ConstProp v) vtable, true)
+                   | Var(n, _) =>
+                       (SymTab.bind name (VarProp n)
+                          (SymTab.remove n vtable) (* remove to prevent shadowing errors *)
+                       , true)
+                   | _ => (vtable, false)
+        in if prop then
+                (* bonus, if we can propagate it, the Let is extraneous *)
+                copyConstPropFoldExp vtable' body
+           else Let (Dec (name, e', decpos),
+                copyConstPropFoldExp vtable' body,
+                pos)
+        end
+\end{lstlistings}
+The secret to properly handling shadowing is to remove copy propagated variables from the
+symbol table. In the case that it is possible to propagate the declaration, the let is extraneous
+and is discarded.
 
 % \phantomsection
 % \addcontentsline{toc}{section}{List of Figures}
