@@ -33,6 +33,9 @@
 % Misc
 
 \usepackage{listings}
+\lstset{
+    language=SML
+}
 \usepackage{alltt}
 \usepackage{hyperref}
 \hypersetup{
@@ -101,29 +104,118 @@ Faculty: DIKU
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-se
+\section{Group Dynamics}
 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \newpage %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \phantomsection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \addcontentsline{toc}{section}{Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancypagestyle{plain}{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancyhf{} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \setlength{\headheight}{2.5em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \setlength{\headsep}{1em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \renewcommand{\headrulewidth}{0pt} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancyhead[R]{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \small Ass. 3, Week 38; Logic in CS 2014 \\ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Karl D. Asmussen, \texttt{twk181}, 1992--11--27} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancyfoot[R]{\isodash{--}\isodate\today} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancyfoot[L]{Page \thepage\ of \pageref{Fin}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \fancyhead[L]{\scriptsize Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \pagestyle{plain} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+My group has unfortunately fallen apart quite hard. First Adrian left due to stress,
+then Bertram and myself drifted apart in the fogs of depressive apathy.
+
+Fun.
+
+As a result, I am handing in this assignment myself. I hope that is acceptable.
+
+\section{Optionals and Tests}
+
+I have implemented a solution to the shadowing problem, but not array comprehensions.
+
+My build passes all the included tests, except for the array cromprehension one, and
+I have made de-bugging inquries myself (although not implemented them as genuine tests,
+because I couldn't make the test-writing work well with my development cycle, primarily
+owing to SML's type system ridding me of almost all bugs, and because writing post-hoc
+tests is disingenuine.)
+
+\section{No Shortcuts}
+
+For the large part, I have adopted a policy of not using shortcuts of reducing one
+structure of FASTO to another in the compilation process. For instance, rewriting
+the short-circuiting logic operators into IF-statements. This is largely to challenge
+myself.
+
+For Task 1, the implementation of arithmetic operators is fairly simple. In the
+interpreter, I default to the builtin operations in SML, but notice in the constant
+folding, that I have implemented the common algebraic rules of arithmetic, even
+for addition and subtraction.
+
+In the code generation, I found that boolean negation can be efficiently implemented with the
+\texttt{slti} instruction, checking if the boolean value is less than 1.
+
+Further, I have hand-implemented the short-circuiting nature of boolean conjunction and disjunction,
+althoug I admit I haven't made inquries as to their code-generation friendlyness w.r.t. register
+allocation.
+
+A bug that came around to bite me in the arse was code-copying errors. First wrestle I had with
+it was when division was translated into multiplication in the Type Checker.
+
+For Task 2, I implemented \texttt{scan} as a straight-forward re-write of \texttt{reduce},
+and then modified that to become \texttt{filter}, because \texttt{map}'s code is abhorrently
+ugly to poke around.
+
+For filter, I had some trouble with getting correct results, and the following list of
+caveats nicely summarizes it:
+\begin{itemize}
+    \item \textit{Don't muck with the size register, as it is used in determining the
+        number of iterations.}
+
+        I had a significant amount of trouble at first, because I thought I could decrement
+        the size counter when the predicate return false, thereby retaining a count of
+        the number of elements in the new array.
+
+    \item \textit{Remember to increment the iteration-count register before branching
+        on the predicate's return value.}
+
+        This led to an interesting series of bugs, where the output array was the
+        same size as the input array.
+    \item \textit{Adjusting the length of the resultant array can be computed from
+        the destination pointer.}
+
+        This allowed me to save a register, and led to another interesting series
+        of bugs where the array were four elements longer, and four times larger
+        than it should have been.
+\end{itemize}
+
+But before any of that, I had the problem that I had copied filter's code off map's
+in the type checker, so I spent a good while pondering what was going on, before
+figuring out exactly why I got a quite mangled array back.
+
+For Task 3, I decided to write the type-cecking for lambda funargs by hand instead
+of deferring to constructing a function declaration. This went well. Compiling the
+lambda itself was an interesting mental challenge, but resulted in very little code.
+
+Lastly in Task 4, I noticed while playing around with the \texttt{-p} option on
+the fasto compiler, that extraneous \texttt{let} bindings --- those that could
+be reduced to a constant or copy-propagation --- were left in, taking up resources
+in the code generation, and made it so they were removed while preserving semantic
+equivalence.
+
+Implementing shadowing-proofing merely consisted of removing any copied variable's
+propagation from the table, thereby allowing for instance, the problematic program
+in the report, to compile successfully.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\phantomsection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\addcontentsline{toc}{section}{Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancypagestyle{plain}{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhf{} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\headheight}{2.5em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\setlength{\headsep}{1em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand{\headrulewidth}{0pt} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhead[R]{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\small Ass. 3, Week 38; Logic in CS 2014 \\ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Karl D. Asmussen, \texttt{twk181}, 1992--11--27} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyfoot[R]{\isodash{--}\isodate\today} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyfoot[L]{Page \thepage\ of \pageref{Fin}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\fancyhead[L]{\scriptsize Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagestyle{plain} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Code Listings of Interest}
+
+
+
 
 % \phantomsection
 % \addcontentsline{toc}{section}{List of Figures}
