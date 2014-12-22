@@ -1,0 +1,147 @@
+\documentclass[12pt, a4paper]{article}
+
+% Language
+
+\usepackage[english]{babel}
+\usepackage[english]{isodate}
+\usepackage[utf8]{inputenc}
+
+% Symbols
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Colors 
+
+\usepackage{xcolor}
+
+% Figures
+
+% \usepackage{float}
+% \usepackage{tikz}
+% \usepackage{graphicx}
+% \usepackage{framed}
+% \usepackage{bussproofs}
+
+% Layout
+
+\usepackage[cm]{fullpage}
+\setlength{\textheight}{640pt}
+% \usepackage{layout}
+\usepackage{fancyhdr}
+
+% Misc
+
+\usepackage{listings}
+\usepackage{alltt}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks,
+  linkcolor={red!50!black},
+  citecolor={blue!50!black},
+  urlcolor={blue!80!black}
+}
+
+% Mathematics
+
+% Formatting 
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1em}
+
+% TOC
+
+\setcounter{tocdepth}{3}
+\renewcommand{\thesection}{}
+\renewcommand{\thesubsection}{}
+\renewcommand{\thesubsubsection}{}
+
+% Fancy
+
+\fancypagestyle{plain}{%
+\fancyhf{}
+\setlength{\headheight}{2.5em}
+\setlength{\headsep}{1em}
+\renewcommand{\headrulewidth}{0pt}
+\fancyhead[R]{%
+\small Ass. 3, Week 38; Logic in CS 2014 \\
+Karl D. Asmussen, \texttt{twk181}, 1992--11--27}
+\fancyfoot[R]{\isodash{--}\isodate\today}
+\fancyfoot[L]{Page \thepage\ of \pageref{Fin}}
+}
+\pagestyle{plain}
+
+% Document proper
+
+\begin{document}
+\thispagestyle{empty}
+
+\begin{center}
+\textbf{\Huge Compilers}\\
+\huge --- Group Assignment ---
+\end{center}
+\vspace{2em}
+
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+\LARGE Name: Karl D. Asmussen\\[1em]
+Birthday: 1992--11--27\\[1em]
+Student identifier: \texttt{twk181} \\[1em]
+Faculty: DIKU
+\end{minipage}
+\end{center}
+
+\pagebreak
+
+\setcounter{page}{1}
+\tableofcontents
+
+\pagebreak
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+se
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newpage %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \phantomsection %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \addcontentsline{toc}{section}{Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancypagestyle{plain}{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancyhf{} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \setlength{\headheight}{2.5em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \setlength{\headsep}{1em} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \renewcommand{\headrulewidth}{0pt} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancyhead[R]{% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \small Ass. 3, Week 38; Logic in CS 2014 \\ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Karl D. Asmussen, \texttt{twk181}, 1992--11--27} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancyfoot[R]{\isodash{--}\isodate\today} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancyfoot[L]{Page \thepage\ of \pageref{Fin}} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \fancyhead[L]{\scriptsize Appendix} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% } %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \pagestyle{plain} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \phantomsection
+% \addcontentsline{toc}{section}{List of Figures}
+% \listoffigures
+
+% \phantomsection
+% \addcontentsline{toc}{section}{List of Tables}
+% \listoftables
+
+% \phantomsection
+% \addcontentsline{toc}{section}{\bibname}
+% \begin{thebibliography}{9}
+% \end{thebibliography}
+
+\vfill
+\begin{center}
+  \textbf{\textit{Fin.}}
+  \label{Fin}
+\end{center}
+
+\end{document}
