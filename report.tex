@@ -34,7 +34,10 @@
 
 \usepackage{listings}
 \lstset{
-    language=SML
+    language=ML,
+    basicstyle=\scriptsize\tt\color{black!70},
+    keywordstyle=\color{black!100},
+    showstringspaces=false
 }
 \usepackage{alltt}
 \usepackage{hyperref}
@@ -230,7 +233,7 @@ Karl D. Asmussen, \texttt{twk181}, 1992--11--27} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \texttt{CopyConstPropFold.sml}, lines 51--64. My changes made to the
 Minus case of \texttt{copyConstPropFoldExp}.
-\begin{lstlistings}
+\begin{lstlisting}
       | Minus (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
@@ -245,14 +248,14 @@ Minus case of \texttt{copyConstPropFoldExp}.
              | _ =>
                Minus (e1', e2', pos)
         end
-\end{lstlistings}
+\end{lstlisting}
 This is a partial implementation of common algebraic invariants of minus,
 $x - 0 = x, 0 - x = -x$ and provides neater
 (if not more efficent) code under \texttt{fasto -p c}.
 
 \texttt{CopyConstPropFold.sml}, lines 168--184. Implementation of the
 \texttt{Times} case in \texttt{copyConstPropFoldExp}
-\begin{lstlistings}
+\begin{lstlisting}
       | Times (e1, e2, pos) =>
         let val e1' = copyConstPropFoldExp vtable e1
             val e2' = copyConstPropFoldExp vtable e2
@@ -270,7 +273,7 @@ $x - 0 = x, 0 - x = -x$ and provides neater
              | _ =>
                Times (e1', e2', pos)
         end
-\end{lstlistings}
+\end{lstlisting}
 Implements the identities $x\times0=0, x\times1=x$.
 
 Similar identities have been added to the \texttt{Plus} case and
@@ -278,19 +281,19 @@ implemented in the \texttt{Division}, \texttt{And}, and \texttt{Or}
 cases.
 
 \texttt{CodeGen}, lines 645--649. \texttt{Not} case in \texttt{compileExp}:
-\begin{lstlistings}
+\begin{lstlisting}
   | Not (e, pos) =>
       let val t = newName "not"
           val code = compileExp e vtable t
       in code @ [Mips.SLTI (place, t, makeConst 1)]
       end
-\end{lstlistings}
+\end{lstlisting}
 Using \texttt{slti} to perform boolean negation after C-style booleans: 0 is false, everything
 else is true.
 
 
 \texttt{CodeGen.sml}, lines 645--649. \texttt{And} and \texttt{Or} cases in \texttt{compileExp}:
-\begin{lstlistings}
+\begin{lstlisting}
   | And (e1, e2, pos) =>
       let val t1 = newName "and_L"
           val t2 = newName "and_R"
@@ -319,11 +322,11 @@ else is true.
           , Mips.SLT (place, place, "0") (* is still 1, compare, negate *)
           , Mips.LABEL merge ]
       end
-\end{lstlistings}
+\end{lstlisting}
 Custom implentation of short-circuiting behavior.
 
 \texttt{CodeGen}, lines 691--746. \texttt{Scan} case in \texttt{compileExp}:
-\begin{lstlistings}
+\begin{lstlisting}
   | Scan (binop, acc_exp, arr_exp, tp, pos) =>
         let val arr_reg  = newName "arr_reg"   
             val size_reg = newName "size_reg"  
@@ -380,13 +383,13 @@ Custom implentation of short-circuiting behavior.
            , Mips.J loop_beg
            , Mips.LABEL loop_end ]
         end
-\end{lstlistings}
+\end{lstlisting}
 Modified version of \texttt{Reduce}. Notice that \verb+store_code+ falls before
 \verb+load_code+ (by virtue of being inside \verb+loop_code+) so as to effect the
 initial accumulator value being the first in the resultant array.
 
 \texttt{CodeGen.sml} line 757--822. \texttt{Filter} case in \texttt{compileExp}:
-\begin{lstlistings}
+\begin{lstlisting}
     | Filter (farg, arr_exp, tp, pos) =>
         let val arr_reg  = newName "arr_reg"   
             val size_reg = newName "size_reg"  
@@ -453,12 +456,12 @@ initial accumulator value being the first in the resultant array.
          @ loop_end
          @ compute_size
         end
-\end{lstlistings}
+\end{lstlisting}
 Heavily based on \texttt{Scan}, Notice in \verb+compute_size+ how shifts are used 
 to effect a division by four.
 
 \texttt{TypeChecker.sml} lines 364--373. \texttt{Lambda} case in \texttt{checkFunArg}:
-\begin{lstlistings}
+\begin{lstlisting}
   | checkFunArg (In.Lambda (ret, params, exp, pos), vtab, ftab, pos_x) =
       let fun addParam (Param (pname, ty), ptable) =
               case SymTab.lookup pname ptable of
@@ -469,22 +472,22 @@ to effect a division by four.
           val ret_t = unifyTypes pos (exp_t, ret)
           val args_t = map (fn Param(_, ty) => ty) params
       in (Out.Lambda (ret_t, params, exp_dec, pos), ret_t, args_t) end
-\end{lstlistings}
+\end{lstlisting}
 Hand-written type checking, not depending on \texttt{checkFunWithVtable}, although it does
 copy the addParam function.
 
 \texttt{CodeGen.sml} lines 843--846. \texttt{Lambda} case in \texttt{compileFunArgWithVtable}:
-\begin{lstlistings}
+\begin{lstlisting}
     | applyFunArg (Lambda (ret, args, exp, _), regs, vtable, place, _) =
       let fun addParam ((Param (n, _), r), st) = SymTab.bind n r st
           val vtable' = foldl addParam vtable (ListPair.zip (args, regs))
       in compileExp exp vtable' place end
-\end{lstlistings}
+\end{lstlisting}
 A neat little piece of code.
 
 \texttt{CopyConstPropFold.sml}, lines 98--122. \texttt{Let} case of
 \texttt{copyConstPropFoldExp}:
-\begin{lstlistings}
+\begin{lstlisting}
       | Let (Dec (name, e, decpos), body, pos) =>
 
         (* TODO TASK 4: This case currently does nothing.
@@ -510,7 +513,7 @@ A neat little piece of code.
                 copyConstPropFoldExp vtable' body,
                 pos)
         end
-\end{lstlistings}
+\end{lstlisting}
 The secret to properly handling shadowing is to remove copy propagated variables from the
 symbol table. In the case that it is possible to propagate the declaration, the let is extraneous
 and is discarded.
