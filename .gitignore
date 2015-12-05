@@ -1,0 +1,12 @@
+Parser.sml
+Parser.sig
+Lexer.sml
+*.ui
+*.uo
+bin/*
+bin/
+*.aux
+*.log
+*.out
+*.pdf
+*.toc
