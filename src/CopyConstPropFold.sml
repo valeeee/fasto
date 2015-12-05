@@ -108,7 +108,10 @@ fun copyConstPropFoldExp vtable e =
             val (vtable', prop) =
                 case e' of 
                      Constant(v, _) => (SymTab.bind name (ConstProp v) vtable, true)
-                   | Var(n, _) => (SymTab.bind name (VarProp n) vtable, true)
+                   | Var(n, _) =>
+                       (SymTab.bind name (VarProp n)
+                          (SymTab.remove n vtable) (* remove to prevent shadowing errors *)
+                       , true)
                    | _ => (vtable, false)
         in if prop then
                 (* bonus, if we can propagate it, the Let is extraneous *)
