@@ -33,4 +33,6 @@ fun combine t1 t2 = t1 @ t2
 
 fun fromList l = l
 
+fun filter p l = List.filter (fn (_, x) => p x) l
+
 end

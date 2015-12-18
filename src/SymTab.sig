@@ -39,4 +39,8 @@ signature SymTab = sig
        closest to the head of the list. *)
     val fromList : (string * 'a) list -> 'a SymTab
 
+
+    (* filter a symbol table by inspecting the values *)
+    val filter : ('a -> bool) -> 'a SymTab -> 'a SymTab
+
 end
