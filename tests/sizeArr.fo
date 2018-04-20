@@ -1,0 +1,20 @@
+fun  int  writeInt  ( int i ) = write(i)
+fun  int  readInt   ( int i ) = read(int) //(* non serve a nulla? *)
+fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
+fun int max (int a, int b) = if (b < a) then a else b 
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+fun [int] fillArr ([int] a) = let result = maxArr(a) in map (fn int (int x) => result+1, a)
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+fun [int] writeIntArr([int] x) = map(writeInt, x)
+fun int incr (int x, int y) = x+y
+fun int size ([int] a) = reduce (incr, 0, ones (a)) 
+fun [int] head ([int] x) = {x[0]}
+
+
+fun [int] main () =   
+    let a = {10000,33,444444444,5,6666} in
+     let b = head (a) in 
+       let c = writeIntArr(a) in 
+        writeIntArr(b)
+
+

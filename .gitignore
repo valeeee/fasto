@@ -1,6 +1,4 @@
-Parser.sml
-Parser.sig
-Lexer.sml
+
 *.ui
 *.uo
 bin/*
