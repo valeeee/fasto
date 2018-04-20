@@ -65,19 +65,21 @@ fun ppType Int = "int"
 
 datatype Param = Param of string * Type
 
+
 functor FastoFn (T : sig eqtype TypeAnnot end) = struct
 
   datatype Exp =
       Constant of Value * pos
     | StringLit of string * pos
     | ArrayLit of Exp list * T.TypeAnnot * pos
-    | Var of string * pos
+    | Var of string * pos                                     
     | Plus of Exp * Exp * pos
     | Minus of Exp * Exp * pos
     | Equal of Exp * Exp * pos
     | Less of Exp * Exp * pos
     | If of Exp * Exp * Exp * pos
     | Apply of string * Exp list * pos
+    | Append of Exp * Exp  * pos                     (*[int]:: Exp list*) 
     | Let of Dec * Exp * pos
     | Index of string * Exp * T.TypeAnnot * pos                   (* arr[3]  *)
     | Iota of Exp * pos                                           (* iota(n) *)
@@ -147,6 +149,7 @@ functor FastoFn (T : sig eqtype TypeAnnot end) = struct
     | ppExp d (Var (id, pos)) = id
     | ppExp d (Plus (e1, e2, pos))  =
         concat [ "(", ppExp d e1, " + ", ppExp d e2, ")" ]
+    | ppExp d (Append (e1, e2, pos)) = concat [ "(", ppExp d e1, " :: ", ppExp d e2, ")" ]
     | ppExp d (Minus (e1, e2, pos)) =
         concat [ "(", ppExp d e1, " - ", ppExp d e2, ")" ]
     | ppExp d (Times (e1,e2,_))  = concat [ ppExp d e1, " * ", ppExp d e2 ]

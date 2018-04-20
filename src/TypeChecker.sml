@@ -149,6 +149,21 @@ and checkExp ftab vtab (exp : In.Exp)
           in (result_type, Out.Apply (f, args_dec, pos))
           end
 
+
+    | In.Append (e1, e2, pos)
+        => let val (t1, e1_dec) = checkExp ftab vtab e1
+                val (arr_type, arr_exp_dec) = checkExp ftab vtab e2 
+             val elem_type =
+               case arr_type of
+                   Array t => t
+                 | other   => raise Error ("Append: Argument not an array", pos)
+         in if elem_type = t1
+            then (Array elem_type,
+                  Out.Append (e1_dec, arr_exp_dec, pos))
+            else raise Error ("Append: ......da completare......" , pos)
+         end
+                
+
     | In.Let (In.Dec (name, exp, pos1), exp_body, pos2)
       => let val (t1, exp_dec)      = checkExp ftab vtab exp
              val new_vtab           = SymTab.bind name t1 vtab

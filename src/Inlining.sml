@@ -25,6 +25,9 @@ fun inlineInExp graph prog e =
       | Equal (e1, e2, pos) =>
         Equal (inlineInExp graph prog e1,
                inlineInExp graph prog e2, pos)
+      | Append (e1, e2, pos) =>
+        Append (inlineInExp graph prog e1,
+               inlineInExp graph prog e2, pos)
       | Less (e1, e2, pos) =>
         Less (inlineInExp graph prog e1,
               inlineInExp graph prog e2, pos)

@@ -32,6 +32,7 @@ fun expCalls e =
       | Equal (e1, e2, _) => expCalls e1 @ expCalls e2
       | Less (e1, e2, _) => expCalls e1 @ expCalls e2
       | If (e1, e2, e3, _) => expCalls e1 @ expCalls e2 @ expCalls e3
+      | Append (e1, e2,_) => expCalls e1 @ expCalls e2
       | Apply (fname, es, _) => fname :: List.concat (map expCalls es)
       | Let (Dec (_, e, _), body, _) => expCalls e @ expCalls body
       | Index (_, e, _, _) => expCalls e

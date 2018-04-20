@@ -152,7 +152,9 @@ fun bindParams ([], [], fid, pd, pc) = SymTab.empty()
     2. ftab holds bindings between function names and
        function declarations (Fasto.FunDec).
     3. Returns the interpreted value. *)
+
 fun evalExp ( Constant (v,_), vtab, ftab ) = v
+
   | evalExp ( ArrayLit (l, t, pos), vtab, ftab ) =
         let val els = (map (fn x => evalExp(x, vtab, ftab)) l)
             val elt = case els of []   => Int (* Arbitrary *)
@@ -212,6 +214,14 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
              | NONE   => raise Error("Function "^fid^" is not in symbol table! Called at: ", pos)
         end
 
+  | evalExp ( Append (e1,e2,pos), vtab, ftab) = 
+      let val val1 = evalExp (e1, vtab, ftab)
+          val val2 = evalExp (e2, vtab, ftab) in 
+          case val2 of 
+          ArrayVal (a, t) => ArrayVal( val1::a,t )
+          |_ => raise Error("error", pos)
+        end
+        
   | evalExp ( Let(Dec(id,e,p), exp, pos), vtab, ftab ) =
         let val res   = evalExp(e, vtab, ftab)
             val nvtab = SymTab.bind id res vtab

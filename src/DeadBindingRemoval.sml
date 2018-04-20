@@ -50,6 +50,13 @@ fun removeDeadBindingsInExp e =
         in (xios orelse yios,
             xuses @ yuses,
             Equal (x', y', pos)) end
+
+    | Append (x, y, pos) =>
+        let val (xios, xuses, x') = removeDeadBindingsInExp x
+            val (yios, yuses, y') = removeDeadBindingsInExp y
+        in (xios orelse yios,
+            xuses @ yuses,
+            Append (x', y', pos)) end
       | Less (x, y, pos) =>
         let val (xios, xuses, x') = removeDeadBindingsInExp x
             val (yios, yuses, y') = removeDeadBindingsInExp y

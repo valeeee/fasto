@@ -226,6 +226,15 @@ structure CodeGen = struct
             val code2 = compileExp e2 vtable t2
         in code1 @ code2 @ [Mips.ADD (place,t1,t2)]
         end
+
+  | Append (e1, e2, pos) =>
+        let val t1 = newName "append_L"
+            val t2 = newName "append_R"
+            val code1 = compileExp e1 vtable t1
+            val code2 = compileExp e2 vtable t2
+        in code1 @ code2 @ [Mips.ADD (place,t1,t2)]
+        end
+        
     | Minus (e1, e2, pos) =>
         let val t1 = newName "minus_L"
             val t2 = newName "minus_R"

@@ -108,6 +108,10 @@ fun copyConstPropFoldExp vtable e =
                         pos)
         end
 
+      | Append (e1, e2, pos) => 
+        Append (copyConstPropFoldExp vtable e1,
+                copyConstPropFoldExp vtable e2,pos) 
+
       | Apply (fname, es, pos) =>
           (* es -- the argument list, is a Exp list, so we fold *)
         Apply (fname, map (copyConstPropFoldExp vtable) es, pos)
