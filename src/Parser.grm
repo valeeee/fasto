@@ -119,7 +119,7 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
         | ID LPAR Exps RPAR
                         { Apply (#1 $1, $3, #2 $1) }
 
-       | Exp APPEND Exp
+        | Exp APPEND Exp
                         { Append ($1, $3, $2)} 
 
         | ID LPAR RPAR  { Apply (#1 $1, [], #2 $1) }

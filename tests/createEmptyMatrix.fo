@@ -1,0 +1,28 @@
+
+
+fun  int  writeInt  ( int i ) = write(i)
+fun  int  readInt   ( int i ) = read(int) //(* non serve a nulla? *)
+fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
+//n serve per creare l'array con iota (n) e controllare il numero delle volte che viene applicato map
+//di fatto funge da ciclo for per leggere n volte da tastiera
+fun int max (int a, int b) = if (b < a) then a else b 
+fun [int] createArr (int i) = map (fn int (int x) => x, iota (i))
+fun [int] createArrElement (int i) = readIntArr (i)
+//fun [[int]] createEmptyMatrix (int i) = map (fn [int] (int x) => createArr (i), iota(i))
+fun [[int]] createMatrix (int i) = map (fn [int] (int x) => createArrElement (i), iota(i))
+
+
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+//calcolo a tempo d'esecuzione il massimo e creo un array di lunghezza result+1
+fun [int] fillArr ([int] a) = let result = maxArr(a) in map (fn int (int x) => result+1, a)
+fun [int] introduce ([int] z) = 
+    let x = write("Introduce (Next) Number ") in 
+    let x = write(": ")   in
+    let b =  read(int) in b::z
+
+fun [[int]] insert () = 
+    let y = write  ("inserisci dimensione matrice n*n: \n") in 
+    let x = read(int) in 
+    createMatrix(x)
+
+fun [[int]] main () = insert ()
