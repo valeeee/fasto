@@ -1,0 +1,52 @@
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int y) = x+y
+
+//create an array with all elements with value 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+
+//function that scan all the matrix and return true if all the rows are in the same size. 
+fun bool checkSize ([[int]] m) = let i = sizeB(m) in 
+                reduce (fn bool (bool b, int c) => 
+                                if b == false then false 
+                                        else 
+                                if c == size(i) then true else false, true, i)
+             
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let y = write (i) in 
+        let z = write ("\t") in y
+
+fun  int  readInt   ( int i ) = read(int) //
+fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
+
+fun [int] createArr (int i) = map (fn int (int x) => x, iota (i))
+fun [int] writeIntArr([int] x) = map(writeInt, x)
+fun [[int]] writeIntArrB([[int]] x) = map(writeIntArr, x)
+fun [int] createArrElement (int i) = readIntArr (i)
+
+//create a squared matrix with the size = i 
+fun [[int]] createMatrix (int i) = 
+ let z = map (fn [int] (int x) => createArrElement (i), iota(i)) 
+ in writeMMInt(z)
+
+
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n[ ") in 
+        let y = map(writeInt, n) in
+        let z = write (" ]\n") in y
+
+
+fun bool main () = 
+        let matrix = {{1,23},{1,2}} in 
+               let print = writeMMInt(matrix) in
+                        checkSize(matrix)
+               

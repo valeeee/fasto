@@ -1,3 +1,5 @@
+//controllare cosa tenere in questo file
+
 fun  int  writeInt  ( int i ) = write(i)
 fun  int  readInt   ( int i ) = read(int) //(* non serve a nulla? *)
 fun [int] readIntArr( int n ) = map (readInt, iota(n)) 

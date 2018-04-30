@@ -1,4 +1,10 @@
 
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n[ ") in 
+        let y = map(writeInt, n) in
+        let z = write (" ]\n") in y
 
 fun  int  writeInt  ( int i ) = write(i)
 fun  int  readInt   ( int i ) = read(int) //(* non serve a nulla? *)
@@ -12,17 +18,12 @@ fun [int] createArrElement (int i) = readIntArr (i)
 fun [[int]] createMatrix (int i) = map (fn [int] (int x) => createArrElement (i), iota(i))
 
 
-fun int maxArr ([int] a) = reduce (max, a[0], a)
-//calcolo a tempo d'esecuzione il massimo e creo un array di lunghezza result+1
-fun [int] fillArr ([int] a) = let result = maxArr(a) in map (fn int (int x) => result+1, a)
-fun [int] introduce ([int] z) = 
-    let x = write("Introduce (Next) Number ") in 
-    let x = write(": ")   in
-    let b =  read(int) in b::z
 
 fun [[int]] insert () = 
-    let y = write  ("inserisci dimensione matrice n*n: \n") in 
+    let y = write  ("insert size of the squared matrix n*n: \n") in 
     let x = read(int) in 
     createMatrix(x)
 
-fun [[int]] main () = insert ()
+
+fun [[int]] main () = let a = insert () in
+writeMMInt(a)
