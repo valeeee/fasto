@@ -1,7 +1,0 @@
-
-fun  int  writeInt  ( int i ) = write(i)
-fun  int  readInt (int i ) = read(int)
-fun [int] readIntArr( int n ) = map (readInt, iota(n))
-
-
-fun int main () = evalExp(Plus (1,0,0))

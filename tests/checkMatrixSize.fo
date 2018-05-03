@@ -10,7 +10,6 @@ fun int size ([int] a) = reduce (incr, 0, ones(a))
 //this calculate the length of each row in the bidimensional array b
 fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
-
 //function that scan all the matrix and return true if all the rows are in the same size. 
 fun bool checkSize ([[int]] m) = let i = sizeB(m) in 
                 reduce (fn bool (bool b, int c) => 
