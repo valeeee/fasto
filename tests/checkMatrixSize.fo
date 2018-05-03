@@ -10,12 +10,14 @@ fun int size ([int] a) = reduce (incr, 0, ones(a))
 //this calculate the length of each row in the bidimensional array b
 fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
-//function that scan all the matrix and return true if all the rows are in the same size. 
-fun bool checkSize ([[int]] m) = let i = sizeB(m) in 
-                reduce (fn bool (bool b, int c) => 
-                                if b == false then false 
+
+//function that scan all the matrix and return 1 if all the rows are in the same size or 0 else
+fun int checkSize ([[int]] m) = let i = sizeB(m) in  
+                reduce (fn int (int b, int c) => 
+                                if b == 0 then 0
                                         else 
-                                if c == size(i) then true else false, true, i)
+                                if c == size(i) then 1 else 0, 
+                                        1, i)
              
 fun  int  writeInt  ( int i ) = 
         let s = write ("\t") in
@@ -44,8 +46,7 @@ fun [int] writeMInt([int] n) =
         let z = write (" ]\n") in y
 
 
-fun bool main () = 
+fun int main () = 
         let matrix = {{1,23},{1,2}} in 
-               let print = writeMMInt(matrix) in
-                        checkSize(matrix)
+                        writeInt(checkSize(matrix))
                
