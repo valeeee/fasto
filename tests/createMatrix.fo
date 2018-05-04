@@ -9,8 +9,8 @@ fun [int] writeIntArr([int] x) = map(writeInt, x)
 fun [[int]] writeIntArrB([[int]] x) = map(writeIntArr, x)
 fun [int] createArrElement (int i) = readIntArr (i)
 fun [[int]] createMatrix (int i) = 
- let z = map (fn [int] (int x) => createArrElement (i), iota(i)) 
- in writeMMInt(z)
+        map (fn [int] (int x) => createArrElement (i), iota(i)) 
+
 
 fun [[int]] insert () = 
     let y = write  ("insert size of the squared matrix: \n") in 
@@ -26,4 +26,6 @@ fun [int] writeMInt([int] n) =
         let z = write (" ]\n") in y
 
 
-fun [[int]] main () = insert () 
+fun [[int]] main () = 
+        let a = insert () in 
+                writeMMInt(a)

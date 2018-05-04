@@ -1,7 +1,7 @@
 //this will be used in the size function for counting the element array 
 fun int incr (int x, int y) = x+y
 
-//create an array with all elements with value 1
+//create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
 //this calcuate the size of the array a
@@ -13,13 +13,28 @@ fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 fun int mod (int n, int q) = n - ((n/q)*q)
 
 //this function return an array with in a[0] the row index and in a[1] the column index
-fun [int] position (int index, [[int]] array) = 
+fun [int] getIndex (int index, [[int]] array) = 
   let s = sizeB(array) in
     let m = mod(index,s[0]) in 
         let row = (index/s[0])+1 in 
              let column = m+1 in 
                 {row, column}
 
+//returns the value in the bidimensional array correspondant to the index {i,j} 
+//where i is the row and j is the column. 
+//Mind that i and j doesn't start from 0 (as index array in Fasto)
+fun int getValue ([int] index, [[int]] array) = 
+    let i = index[0]-1 in
+        let row = array[i] in
+                let column = index[1]-1 in 
+                     row[column] 
+//returns true if j and j are the same value. 
+//This means that we are looking at the diagonal of the matrix
+fun bool diagIndex ([int] index) = 
+    if index[0] == index [1] then true else false
+
+fun [int] createIndex ([[int]] matrix) =  
+    map (fn int ([int] x) => sizeB(matrix), matrix)
+
 fun [int] main () = 
-    let array = {{1,2,3},{4,5,6},{7,8,9}} in 
-    position(1,array)
+    createIndex({{1,1},{1,1}})
