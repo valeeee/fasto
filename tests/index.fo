@@ -1,6 +1,11 @@
 //this will be used in the size function for counting the element array 
 fun int incr (int x, int y) = x+y
 
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let y = write (i) in 
+        let z = write ("\t") in y
+
 //create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
@@ -10,6 +15,7 @@ fun int size ([int] a) = reduce (incr, 0, ones(a))
 //this calculate the length of each row in the bidimensional array b
 fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
+//this calcuate the module 
 fun int mod (int n, int q) = n - ((n/q)*q)
 
 //this function return an array with in a[0] the row index and in a[1] the column index
@@ -28,13 +34,51 @@ fun int getValue ([int] index, [[int]] array) =
         let row = array[i] in
                 let column = index[1]-1 in 
                      row[column] 
-//returns true if j and j are the same value. 
-//This means that we are looking at the diagonal of the matrix
-fun bool diagIndex ([int] index) = 
-    if index[0] == index [1] then true else false
 
-fun [int] createIndex ([[int]] matrix) =  
-    map (fn int ([int] x) => sizeB(matrix), matrix)
+//controllare indici riga e colonna -1????
+fun int checkValue ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
 
-fun [int] main () = 
-    createIndex({{1,1},{1,1}})
+// //returns true if j and j are the same value. 
+// fun bool diagIndex ([int] index) = 
+//     if index[0] == index [1] then true else false
+
+//returns 1 if j and j are the same value. 
+fun int diagIndex ([int] index) = 
+    if index[0] == index [1] then 1 else 0
+
+//this works only for squared matrix 
+fun int maxIndex ([[int]] matrix) =  
+    size(sizeB(matrix))*size(sizeB(matrix))
+
+// fun [int] createIndex (int max) =
+//     iota (max)
+
+// fun int main () =  let matrix = {{1,2},{3,4}} in 
+//     let indice = getIndex(0,matrix) in
+//     getValue(indice,matrix)
+
+fun [[int]] createPosMatrix ([[int]] matrix) = 
+    map (fn [int] (int i) => 
+        getIndex(i,matrix), iota(maxIndex(matrix)))
+
+
+fun [[int]] diagIndexScan ([[int]] matrix) = 
+    let pos = createPosMatrix(matrix) in 
+        map (fn [int] ([int] x) => if x[0] == x [1] then 1::x else 0::x, pos) 
+
+fun int checkResult (int x, int i) = 
+    if (x==1 && i==1) then 1 else 0
+
+
+fun int main () = 
+//element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
+    let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
+        let checkdiagmatrix = diagIndexScan(matrix) in 
+           let result = map (fn int ([int] element) => if (element[0]==0) 
+                    then checkValue({element[1], element[2]}, matrix) else 1, checkdiagmatrix) in
+                        reduce (checkResult, 1, result)
+
+    
+
