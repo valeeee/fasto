@@ -1,13 +1,15 @@
 //this will be used in the size function for counting the element array 
 fun int incr (int x, int y) = x+y
 
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+
 fun  int  writeInt  ( int i ) = 
         let s = write ("\t") in
         let y = write (i) in 
         let z = write ("\t") in y
-
-//create an array with all elements with column 1
-fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
 //this calcuate the size of the array a
 fun int size ([int] a) = reduce (incr, 0, ones(a))
@@ -64,21 +66,20 @@ fun [[int]] createPosMatrix ([[int]] matrix) =
         getIndex(i,matrix), iota(maxIndex(matrix)))
 
 
-fun [[int]] diagIndexScan ([[int]] matrix) = 
-    let pos = createPosMatrix(matrix) in 
-        map (fn [int] ([int] x) => if x[0] == x [1] then 1::x else 0::x, pos) 
-
 fun int checkResult (int x, int i) = 
     if (x==1 && i==1) then 1 else 0
 
+fun int checkIsZero ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
 
 fun int main () = 
-//element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
-    let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
-        let checkdiagmatrix = diagIndexScan(matrix) in 
-           let result = map (fn int ([int] element) => if (element[0]==0) 
-                    then checkValue({element[1], element[2]}, matrix) else 1, checkdiagmatrix) in
-                        reduce (checkResult, 1, result)
+//element[0] = row, element[1]= column
+    let matrix = {{0,0,0,0}, {0,0,0,0}, {0,0,0,0}, {0,0,0,0}} in 
+        let pos = createPosMatrix(matrix) in 
+            let res = map (fn int ([int] x) => checkIsZero (x,matrix), pos) in 
+                    writeInt(reduce (checkResult, 1, res))
 
     
 
