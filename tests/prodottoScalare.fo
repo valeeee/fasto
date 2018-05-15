@@ -1,0 +1,91 @@
+
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n ") in 
+        let y = map(writeInt, n) in
+        let z = write (" \n") in y
+
+
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int y) = x+y
+
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let y = write (i) in 
+        let z = write ("\t") in y
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+//this calcuate the module 
+fun int mod (int n, int q) = n - ((n/q)*q)
+
+//this function return an array with in a[0] the row array and in a[1] the column array
+fun [int] getIndex (int array, [[int]] array) = 
+  let s = sizeB(array) in
+    let m = mod(array,s[0]) in 
+        let row = (array/s[0])+1 in 
+             let column = m+1 in 
+                {row, column}
+
+//returns the value in the bidimensional array correspondant to the array {i,j} 
+//where i is the row and j is the column. 
+//Mind that i and j doesn't start from 0 (as array array in Fasto)
+fun int getValue ([int] array, [[int]] array) = 
+    let i = array[0]-1 in
+        let row = array[i] in
+                let column = array[1]-1 in 
+                     row[column] 
+
+//controllare indici riga e colonna -1????
+fun int checkValue ([int] array, [[int]] array) = 
+        let value =  getValue({array[0], array[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
+// //returns true if j and j are the same value. 
+// fun bool diagIndex ([int] array) = 
+//     if array[0] == array [1] then true else false
+
+//returns 1 if j and j are the same value. 
+fun int diagIndex ([int] array) = 
+    if array[0] == array [1] then 1 else 0
+
+//this works only for squared matrix 
+fun int maxIndex ([[int]] matrix) =  
+    size(sizeB(matrix))*size(sizeB(matrix))
+
+// fun [int] createIndex (int max) =
+//     iota (max)
+
+// fun int main () =  let matrix = {{1,2},{3,4}} in 
+//     let indice = getIndex(0,matrix) in
+//     getValue(indice,matrix)
+
+fun [[int]] createPosMatrix ([[int]] matrix) = 
+    map (fn [int] (int i) => 
+        getIndex(i,matrix), iota(maxIndex(matrix)))
+
+
+fun int checkResult (int x, int i) = 
+    if (x==1 && i==1) then 1 else 0
+
+fun [int] calcValue ([int] array, int y) = 
+     map (fn int (int x) => array[x]*y, iota(size(array))) 
+
+fun [[int]] main () = 
+//element[0] = row, element[1]= column
+    let matrix = {{1,2,3,4}, {5,6,7,8}, {9,10,11,12}, {13,14,15,16}} in 
+        let scal = 2 in 
+            map (fn [int] ([int] x) => calcValue (x,scal), matrix) 
+    
+            
