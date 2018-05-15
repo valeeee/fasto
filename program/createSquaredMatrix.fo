@@ -2,9 +2,9 @@
 fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
 
 fun [int] writeMInt([int] n) = 
-        let x = write("\n[ ") in 
+        let x = write("\n ") in 
         let y = map(writeInt, n) in
-        let z = write (" ]\n") in y
+        let z = write (" \n") in y
 
 fun  int  writeInt  ( int i ) = write(i)
 fun  int  readInt   ( int i ) = read(int) //(* non serve a nulla? *)
@@ -26,4 +26,4 @@ fun [[int]] insert () =
 
 
 fun [[int]] main () = let a = insert () in
-writeMMInt(a)
+        writeMMInt(a)

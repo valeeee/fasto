@@ -38,12 +38,13 @@ fun [[int]] createMatrix (int i) =
  in writeMMInt(z)
 
 
-fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+ fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
 
 fun [int] writeMInt([int] n) = 
-        let x = write("\n[ ") in 
+        let x = write("\n ") in 
         let y = map(writeInt, n) in
-        let z = write (" ]\n") in y
+        let z = write (" \n") in y
+
 
 
 fun int main () = 
