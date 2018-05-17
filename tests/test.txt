@@ -1,18 +1,24 @@
 Program is:
 
-fun int incr(int x, int y) =  (x + y)
+fun [[int]] writeMMInt([[int]] n) =  map(writeMInt, n)
 
-fun [int] writeIntArr([int] x) =  map(writeInt, x)
+fun [int] writeMInt([int] n) =  
+    let x = write("\n ") in    
+    let m2val = map(writeInt, n) in    
+    let z = write(" \n") in
+    m2val
 
-fun int writeInt(int i) =  
-    let s = write("\t") in    
-    let y = write(i) in    
-    let z = write("\t") in
-    y
+fun int incr(int x, int m2val) =  (x + m2val)
 
 fun [int] ones([int] a) =  
     let result = 0 in
     map(fn int (int x) => (result + 1), a)
+
+fun int writeInt(int i) =  
+    let s = write("\t") in    
+    let m2val = write(i) in    
+    let z = write("\t") in
+    m2val
 
 fun int size([int] a) =  reduce(incr, 0, ones(a))
 
@@ -40,7 +46,7 @@ fun int checkValue([int] index, [[int]] array) =
       else 0
   
 
-fun int diagIndex([int] index) =  if ((index[0] == index[1]))
+fun int diagIndex([int] array) =  if ((array[0] == array[1]))
       then 1
       else 0
   
@@ -49,30 +55,31 @@ fun int maxIndex([[int]] matrix) =  size(sizeB(matrix)) * size(sizeB(matrix))
 
 fun [[int]] createPosMatrix([[int]] matrix) =  map(fn [int] (int i) => getIndex(i, matrix), iota(maxIndex(matrix)))
 
-fun [[int]] diagIndexScan([[int]] matrix) =  
-    let pos = createPosMatrix(matrix) in
-    map(fn [int] ([int] x) => if ((x[0] == x[1]))
-          then (1 :: x)
-          else (0 :: x)
-      , pos)
-
 fun int checkResult(int x, int i) =  if ((x == 1) && (i == 1))
       then 1
       else 0
   
 
-fun [int] main() =  
-    let matrix = { { 2, 0, 0, 0 }, { 0, 222, 0, 0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 } } in    
-    let pos = diagIndexScan(matrix) in    
-    let result = map(fn int ([int] element) => if ((element[0] == 0))
-              then checkValue({ element[1], element[2] }, matrix)
-              else 1
-          , pos) in
-    writeIntArr(result)
+fun int sumValue([int] array, int m2Val, [[int]] matrix1) =  (getValue(array, matrix1) + m2Val)
+
+fun [int] sumMatrix([int] array1, [int] array2) =  map(fn int (int x) => (array1[x] + array2[x]), iota(size(array1)))
+
+fun [[int]] main() =  
+    let matrix1 = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } } in    
+    let matrix2 = { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 } } in
+    writeMMInt(map(fn [int] (int x) => sumMatrix(matrix1[x], matrix2[x]), iota(size(sizeB(matrix1)))))
 
 +----------------------------------------+
 | You might need to enter some input now |
 +----------------------------------------+
-	1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 	
 
-Result of 'main': { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+ 	2 		3 		4 		5 	 
+
+ 	6 		7 		8 		9 	 
+
+ 	10 		11 		12 		13 	 
+
+ 	14 		15 		16 		17 	 
+
+
+Result of 'main': { { 2, 3, 4, 5 }, { 6, 7, 8, 9 }, { 10, 11, 12, 13 }, { 14, 15, 16, 17 } }

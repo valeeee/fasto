@@ -31,25 +31,26 @@ fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 fun int mod (int n, int q) = n - ((n/q)*q)
 
 //this function return an array with in a[0] the row array and in a[1] the column array
-fun [int] getIndex (int array, [[int]] array) = 
+//this function return an array with in a[0] the row index and in a[1] the column index
+fun [int] getIndex (int index, [[int]] array) = 
   let s = sizeB(array) in
-    let m = mod(array,s[0]) in 
-        let row = (array/s[0])+1 in 
+    let m = mod(index,s[0]) in 
+        let row = (index/s[0])+1 in 
              let column = m+1 in 
                 {row, column}
 
 //returns the value in the bidimensional array correspondant to the array {i,j} 
 //where i is the row and j is the column. 
 //Mind that i and j doesn't start from 0 (as array array in Fasto)
-fun int getValue ([int] array, [[int]] array) = 
-    let i = array[0]-1 in
+fun int getValue ([int] index, [[int]] array) = 
+    let i = index[0]-1 in
         let row = array[i] in
-                let column = array[1]-1 in 
+                let column = index[1]-1 in 
                      row[column] 
 
-//controllare indici riga e colonna -1????
-fun int checkValue ([int] array, [[int]] array) = 
-        let value =  getValue({array[0], array[1]}, array) in 
+
+fun int checkValue ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
                         if value == 0 then 1 else 0 
 
 // //returns true if j and j are the same value. 
@@ -86,6 +87,6 @@ fun [[int]] main () =
 //element[0] = row, element[1]= column
     let matrix = {{1,2,3,4}, {5,6,7,8}, {9,10,11,12}, {13,14,15,16}} in 
         let scal = 2 in 
-            map (fn [int] ([int] x) => calcValue (x,scal), matrix) 
+           writeMMInt (map (fn [int] ([int] x) => calcValue (x,scal), matrix))
     
             
