@@ -1,0 +1,109 @@
+
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n ") in 
+        let m2val = map(writeInt, n) in
+        let z = write (" \n") in m2val
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int m2val) = x+m2val
+
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+fun [int] head ([int] x) = {x[0]}
+
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let m2val = write (i) in 
+        let z = write ("\t") in m2val
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+//this calcuate the module 
+fun int mod (int n, int q) = n - ((n/q)*q)
+
+//this function return an array with in a[0] the row array and in a[1] the column array
+//this function return an array with in a[0] the row index and in a[1] the column index
+fun [int] getIndex (int index, [[int]] array) = 
+  let s = sizeB(array) in
+    let m = mod(index,s[0]) in 
+        let row = (index/s[0])+1 in 
+             let column = m+1 in 
+                {row, column}
+
+//returns the value in the bidimensional array correspondant to the array {i,j} 
+//where i is the row and j is the column. 
+//Mind that i and j doesn't start from 0 (as array array in Fasto)
+fun int getValue ([int] index, [[int]] array) = 
+    let i = index[0]-1 in
+        let row = array[i] in
+                let column = index[1]-1 in 
+                     row[column] 
+
+
+// fun [int] getValueArray (int index, [[int]] array) = 
+//     let i = getIndex(index, array) in 
+//                  map (getValue (i, array) 
+                   
+
+
+fun int checkValue ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
+// //returns true if j and j are the same value. 
+// fun bool diagIndex ([int] array) = 
+//     if array[0] == array [1] then true else false
+
+//returns 1 if j and j are the same value. 
+fun int diagIndex ([int] array) = 
+    if array[0] == array [1] then 1 else 0
+
+//this works only for squared matrix 
+fun int maxIndex ([[int]] matrix) =  
+    size(sizeB(matrix))*size(sizeB(matrix))
+
+
+
+fun [[int]] createPosMatrix ([[int]] matrix) = 
+    map (fn [int] (int i) => 
+        getIndex(i,matrix), iota(maxIndex(matrix)))
+
+fun  int columnNumber ([[int]] matrix) = 
+    let arr = head(sizeB(matrix)) in 
+        arr[0]
+
+fun int checkResult (int x, int i) = 
+    if (x==1 && i==1) then 1 else 0
+
+fun int sumValue ([int] array, int m2Val,[[int]] matrix1) = 
+          getValue(array, matrix1) + m2Val 
+            //fare la copia di matrix1 e salvare il nuovo valore modificato????
+
+fun [int] sumMatrix ([int] array1, [int] array2) = 
+        map (fn int (int x) => array1[x]+array2[x], iota(size(array1)))
+
+fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) = 
+        let rowNumber = size(sizeB(matrix2)) in
+            columnNumber(matrix1)== rowNumber
+
+// fun bool main () = 
+//         let matrix1 = {{1,2,3,4,5}, {5,6,7,8,9}} in 
+//            let matrix2 = {{1,2,3,4,5}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}} in 
+//                 checkRowColumnNumber(matrix1, matrix2)
+
+fun int product ([int] a, [int] b) = 
+   let res =  map (fn int (int x) => a[x]+b[x], iota(size(a))) in 
+        reduce(incr, 0, res)
+
+fun int main () = 
+    let array1 = {1,2,3} in 
+        let array2 = {1,1,1} in 
+            product (array1, array2)
