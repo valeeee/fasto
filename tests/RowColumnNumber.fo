@@ -1,4 +1,5 @@
-
+fun int max (int a, int b) = if (b < a) then a else b 
+fun int maxArr ([int] a) = reduce (max, a[0], a)
 fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
 
 fun [int] writeMInt([int] n) = 
@@ -99,11 +100,22 @@ fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) =
 //            let matrix2 = {{1,2,3,4,5}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}} in 
 //                 checkRowColumnNumber(matrix1, matrix2)
 
-fun int product ([int] a, [int] b) = 
-   let res =  map (fn int (int x) => a[x]+b[x], iota(size(a))) in 
+fun int productArray ([int] a, [int] b) = 
+   let res =  map (fn int (int x) => a[x]*b[x], iota(size(a))) in 
         reduce(incr, 0, res)
 
-fun int main () = 
-    let array1 = {1,2,3} in 
-        let array2 = {1,1,1} in 
-            product (array1, array2)
+//returns a bidimensional array with the column vectors of the matrix
+fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
+    map (fn [int] (int x) => createColumnVectors(x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+
+
+fun [int] createColumnVectors (int x, [[int]] matrix) = 
+    map (fn int ([int] y) => y[x], matrix)
+
+
+
+fun [[int]] main () = 
+    let matrix = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
+            VectorColumnMatrix (matrix)
+
+
