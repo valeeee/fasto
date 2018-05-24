@@ -78,8 +78,8 @@ fun [[int]] createPosMatrix ([[int]] matrix) =
         getIndex(i,matrix), iota(maxIndex(matrix)))
 
 fun  int columnNumber ([[int]] matrix) = 
-    let arr = head(sizeB(matrix)) in 
-        arr[0]
+            maxArr(sizeB(matrix)) 
+      
 
 fun int checkResult (int x, int i) = 
     if (x==1 && i==1) then 1 else 0
@@ -95,11 +95,6 @@ fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) =
         let rowNumber = size(sizeB(matrix2)) in
             columnNumber(matrix1)== rowNumber
 
-// fun bool main () = 
-//         let matrix1 = {{1,2,3,4,5}, {5,6,7,8,9}} in 
-//            let matrix2 = {{1,2,3,4,5}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}, {5,6,7,8,9}} in 
-//                 checkRowColumnNumber(matrix1, matrix2)
-
 fun int productArray ([int] a, [int] b) = 
    let res =  map (fn int (int x) => a[x]*b[x], iota(size(a))) in 
         reduce(incr, 0, res)
@@ -112,10 +107,18 @@ fun [[int]] VectorColumnMatrix ([[int]] matrix) =
 fun [int] createColumnVectors (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)
 
+fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
+    map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(maxArr(sizeB(vectorColumnM))))
+
+fun bool main () = 
+    let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
+        let matrix2 = {{0,0,0,0},{1,1,1,1},{0,0,0,0}} in 
+                checkRowColumnNumber (matrix1, matrix2)
 
 
-fun [[int]] main () = 
-    let matrix = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
-            VectorColumnMatrix (matrix)
 
-
+// fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
+//     let matrix2 = {{1,1,1,1},{1,1,1,1},{1,1,1,1}} in 
+//         let vectorColumnM = VectorColumnMatrix (matrix2) in
+//                map (fn [int] (int x) => productMatrix (matrix1[x], vectorColumnM), iota(size(sizeB(matrix1))) )
+              
