@@ -1,5 +1,12 @@
 Program is:
 
+fun int max(int a, int b) =  if ((b < a))
+      then a
+      else b
+  
+
+fun int maxArr([int] a) =  reduce(max, a[0], a)
+
 fun [[int]] writeMMInt([[int]] n) =  map(writeMInt, n)
 
 fun [int] writeMInt([int] n) =  
@@ -13,6 +20,8 @@ fun int incr(int x, int m2val) =  (x + m2val)
 fun [int] ones([int] a) =  
     let result = 0 in
     map(fn int (int x) => (result + 1), a)
+
+fun [int] head([int] x) =  { x[0] }
 
 fun int writeInt(int i) =  
     let s = write("\t") in    
@@ -55,6 +64,8 @@ fun int maxIndex([[int]] matrix) =  size(sizeB(matrix)) * size(sizeB(matrix))
 
 fun [[int]] createPosMatrix([[int]] matrix) =  map(fn [int] (int i) => getIndex(i, matrix), iota(maxIndex(matrix)))
 
+fun int columnNumber([[int]] matrix) =  maxArr(sizeB(matrix))
+
 fun int checkResult(int x, int i) =  if ((x == 1) && (i == 1))
       then 1
       else 0
@@ -64,22 +75,37 @@ fun int sumValue([int] array, int m2Val, [[int]] matrix1) =  (getValue(array, ma
 
 fun [int] sumMatrix([int] array1, [int] array2) =  map(fn int (int x) => (array1[x] + array2[x]), iota(size(array1)))
 
+fun bool checkRowColumnNumber([[int]] matrix1, [[int]] matrix2) =  
+    let rowNumber = size(sizeB(matrix2)) in
+    (columnNumber(matrix1) == rowNumber)
+
+fun int productArray([int] a, [int] b) =  
+    let res = map(fn int (int x) => a[x] * b[x], iota(size(a))) in
+    reduce(incr, 0, res)
+
+fun [[int]] VectorColumnMatrix([[int]] matrix) =  map(fn [int] (int x) => createColumnVectors(x, matrix), iota(maxArr(sizeB(matrix))))
+
+fun [int] createColumnVectors(int x, [[int]] matrix) =  map(fn int ([int] y) => y[x], matrix)
+
+fun [int] productMatrix([int] arrmatrix1, [[int]] vectorColumnM) =  map(fn int (int x) => productArray(arrmatrix1, vectorColumnM[x]), iota(maxArr(sizeB(vectorColumnM))))
+
 fun [[int]] main() =  
-    let matrix1 = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 12 }, { 13, 14, 15, 16 } } in    
-    let matrix2 = { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 } } in
-    writeMMInt(map(fn [int] (int x) => sumMatrix(matrix1[x], matrix2[x]), iota(size(sizeB(matrix1)))))
+    let matrix1 = { { 1, 2, 3 }, { 1, 2, 3 }, { 0, 0, 0 }, { 0, 0, 0 } } in    
+    let matrix2 = { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 } } in    
+    let vectorColumnM = VectorColumnMatrix(matrix2) in
+    writeMMInt(map(fn [int] (int x) => productMatrix(matrix1[x], vectorColumnM), iota(size(sizeB(matrix1)))))
 
 +----------------------------------------+
 | You might need to enter some input now |
 +----------------------------------------+
 
- 	2 		3 		4 		5 	 
+ 	6 		6 		6 	 
 
- 	6 		7 		8 		9 	 
+ 	6 		6 		6 	 
 
- 	10 		11 		12 		13 	 
+ 	0 		0 		0 	 
 
- 	14 		15 		16 		17 	 
+ 	0 		0 		0 	 
 
 
-Result of 'main': { { 2, 3, 4, 5 }, { 6, 7, 8, 9 }, { 10, 11, 12, 13 }, { 14, 15, 16, 17 } }
+Result of 'main': { { 6, 6, 6 }, { 6, 6, 6 }, { 0, 0, 0 }, { 0, 0, 0 } }
