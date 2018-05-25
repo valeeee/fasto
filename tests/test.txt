@@ -21,8 +21,6 @@ fun [int] ones([int] a) =
     let result = 0 in
     map(fn int (int x) => (result + 1), a)
 
-fun [int] head([int] x) =  { x[0] }
-
 fun int writeInt(int i) =  
     let s = write("\t") in    
     let m2val = write(i) in    
@@ -33,79 +31,24 @@ fun int size([int] a) =  reduce(incr, 0, ones(a))
 
 fun [int] sizeB([[int]] b) =  map(fn int ([int] x) => size(x), b)
 
-fun int mod(int n, int q) =  (n - n / q * q)
+fun [[int]] trasposeMatrix([[int]] matrix) =  map(fn [int] (int x) => traspose(x, matrix), iota(maxArr(sizeB(matrix))))
 
-fun [int] getIndex(int index, [[int]] array) =  
-    let s = sizeB(array) in    
-    let m = mod(index, s[0]) in    
-    let row = (index / s[0] + 1) in    
-    let column = (m + 1) in
-    { row, column }
-
-fun int getValue([int] index, [[int]] array) =  
-    let i = (index[0] - 1) in    
-    let row = array[i] in    
-    let column = (index[1] - 1) in
-    row[column]
-
-fun int checkValue([int] index, [[int]] array) =  
-    let value = getValue({ index[0], index[1] }, array) in
-    if ((value == 0))
-      then 1
-      else 0
-  
-
-fun int diagIndex([int] array) =  if ((array[0] == array[1]))
-      then 1
-      else 0
-  
-
-fun int maxIndex([[int]] matrix) =  size(sizeB(matrix)) * size(sizeB(matrix))
-
-fun [[int]] createPosMatrix([[int]] matrix) =  map(fn [int] (int i) => getIndex(i, matrix), iota(maxIndex(matrix)))
-
-fun int columnNumber([[int]] matrix) =  maxArr(sizeB(matrix))
-
-fun int checkResult(int x, int i) =  if ((x == 1) && (i == 1))
-      then 1
-      else 0
-  
-
-fun int sumValue([int] array, int m2Val, [[int]] matrix1) =  (getValue(array, matrix1) + m2Val)
-
-fun [int] sumMatrix([int] array1, [int] array2) =  map(fn int (int x) => (array1[x] + array2[x]), iota(size(array1)))
-
-fun bool checkRowColumnNumber([[int]] matrix1, [[int]] matrix2) =  
-    let rowNumber = size(sizeB(matrix2)) in
-    (columnNumber(matrix1) == rowNumber)
-
-fun int productArray([int] a, [int] b) =  
-    let res = map(fn int (int x) => a[x] * b[x], iota(size(a))) in
-    reduce(incr, 0, res)
-
-fun [[int]] VectorColumnMatrix([[int]] matrix) =  map(fn [int] (int x) => createColumnVectors(x, matrix), iota(maxArr(sizeB(matrix))))
-
-fun [int] createColumnVectors(int x, [[int]] matrix) =  map(fn int ([int] y) => y[x], matrix)
-
-fun [int] productMatrix([int] arrmatrix1, [[int]] vectorColumnM) =  map(fn int (int x) => productArray(arrmatrix1, vectorColumnM[x]), iota(maxArr(sizeB(vectorColumnM))))
+fun [int] traspose(int x, [[int]] matrix) =  map(fn int ([int] y) => y[x], matrix)
 
 fun [[int]] main() =  
     let matrix1 = { { 1, 2, 3 }, { 1, 2, 3 }, { 0, 0, 0 }, { 0, 0, 0 } } in    
-    let matrix2 = { { 1, 1, 1, 1 }, { 1, 1, 1, 1 }, { 1, 1, 1, 1 } } in    
-    let vectorColumnM = VectorColumnMatrix(matrix2) in
-    writeMMInt(map(fn [int] (int x) => productMatrix(matrix1[x], vectorColumnM), iota(size(sizeB(matrix1)))))
+    let trasMatrix = trasposeMatrix(matrix1) in
+    writeMMInt(trasMatrix)
 
 +----------------------------------------+
 | You might need to enter some input now |
 +----------------------------------------+
 
- 	6 		6 		6 	 
+ 	1 		1 		0 		0 	 
 
- 	6 		6 		6 	 
+ 	2 		2 		0 		0 	 
 
- 	0 		0 		0 	 
-
- 	0 		0 		0 	 
+ 	3 		3 		0 		0 	 
 
 
-Result of 'main': { { 6, 6, 6 }, { 6, 6, 6 }, { 0, 0, 0 }, { 0, 0, 0 } }
+Result of 'main': { { 1, 1, 0, 0 }, { 2, 2, 0, 0 }, { 3, 3, 0, 0 } }

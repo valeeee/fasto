@@ -101,10 +101,10 @@ fun int productArray ([int] a, [int] b) =
 
 //returns a bidimensional array with the column vectors of the matrix
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
-    map (fn [int] (int x) => createColumnVectors(x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
 
 
-fun [int] createColumnVectors (int x, [[int]] matrix) = 
+fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)
 
 fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 

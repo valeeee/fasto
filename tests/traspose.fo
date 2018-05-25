@@ -1,0 +1,38 @@
+fun int max (int a, int b) = if (b < a) then a else b 
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n ") in 
+        let m2val = map(writeInt, n) in
+        let z = write (" \n") in m2val
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int m2val) = x+m2val
+
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let m2val = write (i) in 
+        let z = write ("\t") in m2val
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+//returns a bidimensional array with the column vectors of the matrix
+fun [[int]] trasposeMatrix ([[int]] matrix) = 
+    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+
+
+fun [int] traspose  (int x, [[int]] matrix) = 
+    map (fn int ([int] y) => y[x], matrix)
+    
+fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
+        let trasMatrix = trasposeMatrix (matrix1) in
+              writeMMInt (trasMatrix)
