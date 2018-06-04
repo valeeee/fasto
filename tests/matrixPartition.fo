@@ -1,0 +1,127 @@
+//this calcuate the module 
+fun int mod (int n, int q) = n - ((n/q)*q)
+
+//this function return an array with in a[0] the row index and in a[1] the column index
+fun [int] getIndex (int index, [[int]] array) = 
+  let s = sizeB(array) in
+    let m = mod(index,s[0]) in 
+        let row = (index/s[0])+1 in 
+             let column = m+1 in 
+                {row, column}
+                
+fun [int] createArrElement (int i) = readIntArr (i)
+fun [[int]] createMatrix (int i) = 
+         map (fn [int] (int x) => createArrElement (i), iota(i)) 
+
+fun int max (int a, int b) = if (b < a) then a else b 
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+fun [[int]] writeMMBlock([[int]] n) = let x = write("----------------------------------------") in 
+            map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n ") in 
+        let m2val = map(writeInt, n) in
+        let z = write (" \n") in m2val
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int m2val) = x+m2val
+
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+fun [int] head ([int] x) = {x[0]}
+
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let m2val = write (i) in 
+        let z = write ("\t") in m2val
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+
+//returns the value in the bidimensional array correspondant to the array {i,j} 
+//where i is the row and j is the column. 
+//Mind that i and j doesn't start from 0 (as array array in Fasto)
+fun int getValue ([int] index, [[int]] array) = 
+    let i = index[0]-1 in
+        let row = array[i] in
+                let column = index[1]-1 in 
+                     row[column] 
+
+
+fun int checkValue ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
+
+//returns 1 if j and j are the same value. 
+fun int diagIndex ([int] array) = 
+    if array[0] == array [1] then 1 else 0
+
+//this works only for squared matrix 
+fun int maxIndex ([[int]] matrix) =  
+    size(sizeB(matrix))*size(sizeB(matrix))
+
+//this works only for squared matrix 
+fun int maxIndexNS ([[int]] matrix) =  
+    size(sizeB(matrix))*maxArr(sizeB(matrix))
+
+fun [[int]] createPosMatrix ([[int]] matrix) = 
+    map (fn [int] (int i) => 
+        getIndex(i,matrix), iota(maxIndexNS(matrix))) //correggere
+
+fun  int columnNumber ([[int]] matrix) = 
+            maxArr(sizeB(matrix)) 
+      
+
+fun int checkResult (int x, int i) = 
+    if (x==1 && i==1) then 1 else 0
+
+
+//returns a bidimensional array with the column vectors of the matrix
+fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
+    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+
+fun [[int]] divideMatrix ([[int]] pos, [int] partition) = 
+        map (fn [int] (int x) => pos[x], iota(8)) 
+        
+        ///!!!! attenzione le righe di pos[x] non sono quelle della mia matrice!!!!!
+
+          
+        //prendere per ogni riga fino alla y-esima colonna (cioè 0,1,2 elementi) e tenere il resto da parte
+        //contestualmente prendere solo x righe e tenere da parte il resto 
+        //createBlock (matrix, rowcolumn)
+
+fun [int] createBlock ([[int]] matrix, [int] rowcolumn) = 
+            let p = createPosMatrix (matrix) in 
+                let subPos = divideMatrix (p, rowcolumn) in 
+               //map for the row of the requested block 
+                     map (fn int ([int] x) => getValue({x[0],x[1]}, matrix), subPos) 
+
+
+//return a partion of the matrix by rows, where s is the number of requested rows
+fun [[int]] rows ([[int]] matrix, int s) = 
+        map (fn [int] (int x) => matrix[x], iota(s))
+
+fun [int] ColumnElement ([[int]] matrix, int c) = map (fn int ([int] x) => x[c], matrix)
+                     
+//return a partion of the matrix by column, where s is the number of requested columns
+fun [[int]] columns ([[int]] matrix, int s) = 
+       map (fn [int] (int x) => ColumnElement(matrix, x), iota(s))
+
+
+//     let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
+//         let partition = {3,2} in 
+//             let block = divideMatrix (m1, partition) in 
+//                     map (writeMMBlock, block)
+
+fun [[int]] main () = 
+    let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
+            columns(rows(m1, 2),2)
+          

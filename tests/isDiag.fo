@@ -66,14 +66,17 @@ fun [[int]] diagIndexScan ([[int]] matrix) =
 fun int checkResult (int x, int i) = 
     if (x==1 && i==1) then 1 else 0
 
+fun int product (int a, int b) = 
+    a*b
 
-fun [int] main () = 
+
+fun int main () = 
 //element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
     let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
         let pos = diagIndexScan(matrix) in 
         //if we are considering the element of the diagonal I don't need to check the value in the matrix. It's always true = 1. 
             let result = map (fn int ([int] element) => if (element[0]==0) 
                     then checkValue({element[1], element[2]}, matrix) else 1, pos) in
-                    writeIntArr(result)
+                    reduce(product, 1, result)
 
     
