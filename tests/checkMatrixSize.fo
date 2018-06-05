@@ -27,9 +27,10 @@ fun  int  writeInt  ( int i ) =
 fun  int  readInt   ( int i ) = read(int) //
 fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
 
+//creates an array with size i 
 fun [int] createArr (int i) = map (fn int (int x) => x, iota (i))
 fun [int] writeIntArr([int] x) = map(writeInt, x)
-fun [[int]] writeIntArrB([[int]] x) = map(writeIntArr, x)
+//create an array reading i element with readIntArr
 fun [int] createArrElement (int i) = readIntArr (i)
 
 //create a squared matrix with the size = i 

@@ -1,78 +1,52 @@
 Program is:
 
-fun int incr(int x, int y) =  (x + y)
-
-fun [int] writeIntArr([int] x) =  map(writeInt, x)
-
 fun int writeInt(int i) =  
     let s = write("\t") in    
     let y = write(i) in    
     let z = write("\t") in
     y
 
-fun [int] ones([int] a) =  
-    let result = 0 in
-    map(fn int (int x) => (result + 1), a)
+fun int readInt(int i) =  read(int)
 
-fun int size([int] a) =  reduce(incr, 0, ones(a))
+fun [int] readIntArr(int n) =  map(readInt, iota(n))
 
-fun [int] sizeB([[int]] b) =  map(fn int ([int] x) => size(x), b)
+fun [int] createArr(int i) =  map(fn int (int x) => x, iota(i))
 
-fun int mod(int n, int q) =  (n - n / q * q)
+fun [int] writeIntArr([int] x) =  map(writeInt, x)
 
-fun [int] getIndex(int index, [[int]] array) =  
-    let s = sizeB(array) in    
-    let m = mod(index, s[0]) in    
-    let row = (index / s[0] + 1) in    
-    let column = (m + 1) in
-    { row, column }
+fun [[int]] writeIntArrB([[int]] x) =  map(writeIntArr, x)
 
-fun int getValue([int] index, [[int]] array) =  
-    let i = (index[0] - 1) in    
-    let row = array[i] in    
-    let column = (index[1] - 1) in
-    row[column]
+fun [int] createArrElement(int i) =  readIntArr(i)
 
-fun int checkValue([int] index, [[int]] array) =  
-    let value = getValue({ index[0], index[1] }, array) in
-    if ((value == 0))
-      then 1
-      else 0
-  
+fun [[int]] createMatrix(int i) =  map(fn [int] (int x) => createArrElement(i), iota(i))
 
-fun int diagIndex([int] index) =  if ((index[0] == index[1]))
-      then 1
-      else 0
-  
+fun [[int]] insert() =  
+    let y = write("insert size of the squared matrix: \n") in    
+    let x = read(int) in    
+    let z = write("insert values: \n") in
+    createMatrix(x)
 
-fun int maxIndex([[int]] matrix) =  size(sizeB(matrix)) * size(sizeB(matrix))
+fun [[int]] writeMMInt([[int]] n) =  map(writeMInt, n)
 
-fun [[int]] createPosMatrix([[int]] matrix) =  map(fn [int] (int i) => getIndex(i, matrix), iota(maxIndex(matrix)))
+fun [int] writeMInt([int] n) =  
+    let x = write("\n ") in    
+    let y = map(writeInt, n) in    
+    let z = write(" \n") in
+    y
 
-fun [[int]] diagIndexScan([[int]] matrix) =  
-    let pos = createPosMatrix(matrix) in
-    map(fn [int] ([int] x) => if ((x[0] == x[1]))
-          then (1 :: x)
-          else (0 :: x)
-      , pos)
-
-fun int checkResult(int x, int i) =  if ((x == 1) && (i == 1))
-      then 1
-      else 0
-  
-
-fun [int] main() =  
-    let matrix = { { 2, 0, 0, 0 }, { 0, 222, 0, 0 }, { 0, 0, 1, 0 }, { 0, 0, 0, 1 } } in    
-    let pos = diagIndexScan(matrix) in    
-    let result = map(fn int ([int] element) => if ((element[0] == 0))
-              then checkValue({ element[1], element[2] }, matrix)
-              else 1
-          , pos) in
-    writeIntArr(result)
+fun [[int]] main() =  
+    let a = insert() in
+    writeMMInt(a)
 
 +----------------------------------------+
 | You might need to enter some input now |
 +----------------------------------------+
-	1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 		1 	
+insert size of the squared matrix: 
+insert values: 
 
-Result of 'main': { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 }
+ 	1 		1 	 
+
+ 	1 		1 	 
+
+
+Result of 'main': { { 1, 1 }, { 1, 1 } }

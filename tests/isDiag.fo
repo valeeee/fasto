@@ -1,6 +1,9 @@
 //this will be used in the size function for counting the element array 
 fun int incr (int x, int y) = x+y
 
+//this functions returns the greatest value of a and b
+fun int max (int a, int b) = if (b < a) then a else b 
+
 fun [int] writeIntArr([int] x) = map(writeInt, x)
 
 fun  int  writeInt  ( int i ) = 
@@ -19,6 +22,9 @@ fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
 //this calcuate the module 
 fun int mod (int n, int q) = n - ((n/q)*q)
+
+//this function take a as array and returns the greatest value in the array
+fun int maxArr ([int] a) = reduce (max, a[0], a)
 
 //this function return an array with in a[0] the row index and in a[1] the column index
 fun [int] getIndex (int index, [[int]] array) = 
@@ -41,17 +47,13 @@ fun int checkValue ([int] index, [[int]] array) =
         let value =  getValue({index[0], index[1]}, array) in 
                         if value == 0 then 1 else 0 
 
-// //returns true if j and j are the same value. 
-// fun bool diagIndex ([int] index) = 
-//     if index[0] == index [1] then true else false
-
 //returns 1 if j and j are the same value. 
 fun int diagIndex ([int] index) = 
     if index[0] == index [1] then 1 else 0
 
 //this works only for squared matrix 
 fun int maxIndex ([[int]] matrix) =  
-    size(sizeB(matrix))*size(sizeB(matrix))
+    size(sizeB(matrix))*maxArr(sizeB(matrix))
 
 
 fun [[int]] createPosMatrix ([[int]] matrix) = 
@@ -74,9 +76,11 @@ fun int main () =
 //element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
     let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
         let pos = diagIndexScan(matrix) in 
-        //if we are considering the element of the diagonal I don't need to check the value in the matrix. It's always true = 1. 
+          //if we are considering the element of the diagonal I don't need to check the value in the matrix. It's always true = 1. 
             let result = map (fn int ([int] element) => if (element[0]==0) 
-                    then checkValue({element[1], element[2]}, matrix) else 1, pos) in
-                    reduce(product, 1, result)
+                  then checkValue({element[1], element[2]}, matrix) else 1, pos) in
+                   reduce(product, 1, result)
+
+
 
     

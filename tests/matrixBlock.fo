@@ -69,10 +69,8 @@ fun int checkValue ([int] index, [[int]] array) =
 fun int diagIndex ([int] array) = 
     if array[0] == array [1] then 1 else 0
 
-//this works only for squared matrix 
 fun int maxIndex ([[int]] matrix) =  
-    size(sizeB(matrix))*size(sizeB(matrix))
-
+    size(sizeB(matrix))*maxArr(sizeB(matrix))
 
 
 fun [[int]] createPosMatrix ([[int]] matrix) = 
@@ -86,47 +84,46 @@ fun  int columnNumber ([[int]] matrix) =
 fun int checkResult (int x, int i) = 
     if (x==1 && i==1) then 1 else 0
 
-fun int sumValue ([int] array, int m2Val,[[int]] matrix1) = 
-          getValue(array, matrix1) + m2Val 
-            //fare la copia di matrix1 e salvare il nuovo valore modificato????
+// fun int sumValue ([int] array, int m2Val,[[int]] matrix1) = 
+//           getValue(array, matrix1) + m2Val 
+//             //fare la copia di matrix1 e salvare il nuovo valore modificato????
 
-fun [int] sumMatrix ([int] array1, [int] array2) = 
-        map (fn int (int x) => array1[x]+array2[x], iota(size(array1)))
+// fun [int] sumMatrix ([int] array1, [int] array2) = 
+//         map (fn int (int x) => array1[x]+array2[x], iota(size(array1)))
 
 fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) = 
         let rowNumber = size(sizeB(matrix2)) in
             columnNumber(matrix1)== rowNumber
+                   
+//return a partion of the matrix by column, where s is the number of requested columns
+fun [[int]] columns ([[int]] matrix, int s) = 
+       map (fn [int] (int x) => ColumnElement(matrix, x), iota(s))
+       
+fun [int] ColumnElement ([[int]] matrix, int c) = map (fn int ([int] x) => x[c], matrix)
+                     
 
-fun int productArray ([int] a, [int] b) = 
-   let res =  map (fn int (int x) => a[x]*b[x], iota(size(a))) in 
-        reduce(incr, 0, res)
+//return a partion of the matrix by rows, where s is the number of requested rows
+fun [[int]] rows ([[int]] matrix, int s) = 
+        map (fn [int] (int x) => matrix[x], iota(s))
 
-//returns a bidimensional array with the column vectors of the matrix
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
     map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
-
 
 fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)
 
-fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
-    map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(maxArr(sizeB(vectorColumnM))))
-
-// fun bool main () = 
-//     let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
-//         let matrix2 = {{0,0,0,0},{1,1,1,1},{0,0,0,0}} in 
-//                 checkRowColumnNumber (matrix1, matrix2)
-
-
-
 fun [[[int]]] main () = 
-    let b1 = {{1}} in 
-        let b2 = {{2,3}} in 
-            let b3 = {{4}} in 
-                let b4 = {{5},{9}} in 
-                    let b5 = {{6,7},{10,11}} in 
-                        let b6 = {{8},{12}} in 
-                            let b7 = {{13}} in 
-                                let b8 = {{14,15}} in 
-                                    let b9 = {{16}} in 
-                                        map (writeMMBlock, {b1, b2,b3, b4,b5,b6,b7,b8,b9})
+    // let b1 = {{1}} in 
+    //     let b2 = {{2,3}} in 
+    //         let b3 = {{4}} in 
+    //             let b4 = {{5},{9}} in 
+    //                 let b5 = {{6,7},{10,11}} in 
+    //                     let b6 = {{8},{12}} in 
+    //                         let b7 = {{13}} in 
+    //                             let b8 = {{14,15}} in 
+    //                                 let b9 = {{16}} in 
+
+  let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
+            let b1 = columns(rows(m1, 2),2) in 
+             let b2 = VectorColumnMatrix(b1) in
+                map (writeMMBlock, {b2})

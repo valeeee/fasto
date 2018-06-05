@@ -121,4 +121,4 @@ fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
     let matrix2 = {{1,1,1,1},{1,1,1,1},{1,1,1,1}} in 
         let vectorColumnM = VectorColumnMatrix (matrix2) in
                writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vectorColumnM), iota(size(sizeB(matrix1))) ))
-              
+            

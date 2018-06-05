@@ -88,21 +88,21 @@ fun int checkResult (int x, int i) =
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
     map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
 
-fun [[int]] divideMatrix ([[int]] pos, [int] partition) = 
-        map (fn [int] (int x) => pos[x], iota(8)) 
-        
-        ///!!!! attenzione le righe di pos[x] non sono quelle della mia matrice!!!!!
 
+fun [int] traspose  (int x, [[int]] matrix) = 
+    map (fn int ([int] y) => y[x], matrix)
+
+    
           
         //prendere per ogni riga fino alla y-esima colonna (cioè 0,1,2 elementi) e tenere il resto da parte
         //contestualmente prendere solo x righe e tenere da parte il resto 
         //createBlock (matrix, rowcolumn)
 
-fun [int] createBlock ([[int]] matrix, [int] rowcolumn) = 
-            let p = createPosMatrix (matrix) in 
-                let subPos = divideMatrix (p, rowcolumn) in 
-               //map for the row of the requested block 
-                     map (fn int ([int] x) => getValue({x[0],x[1]}, matrix), subPos) 
+// fun [int] createBlock ([[int]] matrix, [int] rowcolumn) = 
+//             let p = createPosMatrix (matrix) in 
+//                 let subPos = divideMatrix (p, rowcolumn) in 
+//                //map for the row of the requested block 
+//                      map (fn int ([int] x) => getValue({x[0],x[1]}, matrix), subPos) 
 
 
 //return a partion of the matrix by rows, where s is the number of requested rows
@@ -123,5 +123,5 @@ fun [[int]] columns ([[int]] matrix, int s) =
 
 fun [[int]] main () = 
     let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
-            columns(rows(m1, 2),2)
+            traspose(1,m1)
           
