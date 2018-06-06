@@ -100,25 +100,20 @@ fun int productArray ([int] a, [int] b) =
         reduce(incr, 0, res)
 
 //returns a bidimensional array with the column vectors of the matrix
-fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
-    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+fun [[int]] trasposeMatrix ([[int]] matrix) =  
+    map (fn [int] (int x) => traspose (x, matrix) , iota(maxArr(sizeB(matrix))) )
 
 
 fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)
 
-fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
-    map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(maxArr(sizeB(vectorColumnM))))
 
-// fun bool main () = 
-//     let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
-//         let matrix2 = {{0,0,0,0},{1,1,1,1},{0,0,0,0}} in 
-//                 checkRowColumnNumber (matrix1, matrix2)
-
+ fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
+     map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(maxArr(sizeB(vectorColumnM))))
 
 
 fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
     let matrix2 = {{1,1,1,1},{1,1,1,1},{1,1,1,1}} in 
-        let vectorColumnM = VectorColumnMatrix (matrix2) in
-               writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vectorColumnM), iota(size(sizeB(matrix1))) ))
+        let vc = trasposeMatrix(matrix2) in
+               writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vc), iota(maxArr(sizeB(matrix1))) ))
             

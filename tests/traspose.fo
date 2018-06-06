@@ -33,6 +33,6 @@ fun [[int]] trasposeMatrix ([[int]] matrix) =
 fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)
     
-fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
+fun [[int]] main () = let matrix1 = {{1,2,3}, {44,7,9}, {33,9,29},{97,89,4}} in
         let trasMatrix = trasposeMatrix (matrix1) in
               writeMMInt (trasMatrix)
