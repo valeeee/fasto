@@ -26,8 +26,9 @@ fun int size ([int] a) = reduce (incr, 0, ones(a))
 fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
 //returns a bidimensional array with the column vectors of the matrix
-fun [[int]] trasposeMatrix ([[int]] matrix) = 
-    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+//iota(maxArr(sizeB(matrix))) = number of rows 
+fun [[int]] trasposeMatrix ([[int]] matrix) =  
+    map (fn [int] (int x) => traspose (x, matrix) , iota(maxArr(sizeB(matrix))) )
 
 
 fun [int] traspose  (int x, [[int]] matrix) = 
