@@ -109,11 +109,12 @@ fun [int] traspose  (int x, [[int]] matrix) =
 
 
  fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
-     map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(maxArr(sizeB(vectorColumnM))))
+     map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(size(sizeB(vectorColumnM))))
 
 
 fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
     let matrix2 = {{1,1,1,1},{1,1,1,1},{1,1,1,1}} in 
         let vc = trasposeMatrix(matrix2) in
-               writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vc), iota(maxArr(sizeB(matrix1))) ))
+               writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vc), iota(size(sizeB(matrix1)))) )
             
+    

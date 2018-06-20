@@ -116,12 +116,7 @@ fun [[int]] columns ([[int]] matrix, int s) =
        map (fn [int] (int x) => ColumnElement(matrix, x), iota(s))
 
 
-//     let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
-//         let partition = {3,2} in 
-//             let block = divideMatrix (m1, partition) in 
-//                     map (writeMMBlock, block)
-
 fun [[int]] main () = 
     let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
-            traspose(1,m1)
+            VectorColumnMatrix(m1)
           
