@@ -95,6 +95,10 @@ fun [int] traspose  (int x, [[int]] matrix) =
 fun [[int]] rowselection ([[int]] matrix, int s) = 
         map (fn [int] (int x) => matrix[x], iota(s))
 
+fun [[int]] rowselection2 ([[int]] matrix, int s) = 
+       map (fn [int] (int x) => matrix[s+x], iota(2)) //da sistemare con scarti di righe 
+
+
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
     map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
 
@@ -104,15 +108,31 @@ fun int getPositive (int x) = if (x<0) then ~x else x
 fun [int] sumMatrix ([int] array1, [int] array2) = 
         map (fn int (int x) => array1[x]+array2[x], iota(size(array1)))
 
-fun [[int]] calculateBlock ([int] array, [[int]] matrix) = 
-           let b1 = columnselection(matrix, array[1]) in 
-               rowselection(VectorColumnMatrix(b1),array[0]) 
+// c = size of the matrix 
+// s = size of the block
 
-//this function takes the size of the previous block and calculate the next one considering the size of the matrix
-fun [[int]] calculateSecondBlock ([int] array, [[int]] matrix) = 
-    let z = iota(maxArr(sizeB(matrix))-array[1]) in 
-      let a = map (fn [int] (int x)=> ColumnElement (matrix,array[1]+z[x]), z) in 
-        rowselection(VectorColumnMatrix(a),array[0])
+fun int sizeMatrix ([[int]] matrix) = (size(sizeB(matrix))*size(sizeB(matrix)))
+
+fun [[int]] calculateBlock (int s, [[int]] matrix, int index, int count) = 
+        if (count < 1) then {{1011110101010101}}
+           else 
+              let b1 = map (fn [int] (int x)=> ColumnElement (matrix,index+x), iota(s)) in 
+                 let b2 = rowselection(VectorColumnMatrix(b1), s) in
+                  let res = writeMMBlock(b2) in 
+                     let i2 = index + s  in 
+                      let c2 = count-1 in  
+                    //   //  let separate = write("-------------------------------------------------------------------------") in 
+                        calculateBlock (s, matrix, i2, c2) 
+
+// //this function takes the size of the previous block and calculate the next one considering the size of the matrix
+// fun [[int]] calculateSecondBlock (int s, [[int]] matrix, int c, [[int]] b) = 
+//     let z = mod(c,s) in //numero blocchi da calcolare
+//      if (0 < z) then 
+//       let a = map (fn [int] (int x)=> ColumnElement (matrix,s+x), iota(s)) in 
+//         let b = rowselection(VectorColumnMatrix(a),s) in calculateSecondBlock (s+x, matrix, c-s) 
+//            else 
+//              writeMMBlock (b) 
+          
 
 //fun [[int]] calculateThirdBlock ([[int]] start, [[int]] matrix) = 
 //    let a = map (fn int ([int] x) => x[0], start) in 
@@ -138,19 +158,15 @@ fun [[int]] calculateSecondBlock ([int] array, [[int]] matrix) =
 // fun [int] isNextBlock ([[int]] matrix, [int] array) = 
 //         calculateBlock({array[0], array[1]}, matrix) 
 
-fun [[int]] insert () = 
-    let a = write("insert total blocks number:\n") in 
-        let b = readInt(1) in 
-            let c = write("insert row and column index for block partition from left to right, from up to bottom:\n") in 
-                 map (fn [int] (int x)=> readIntArr(2), iota(b))
-                 
+fun int insert () = 
+    let a = write("insert size of the squared blocks:\n") in 
+        readInt(1) 
+
 fun [[int]] main () = 
   let start = insert() in 
-   let m1 = {{1,2,3,4}, {3,1,2,0}, {0,0,0,0}} in 
-     let b1 = calculateBlock(start[0], m1) in 
-         let b2 = calculateSecondBlock(start[0], m1) in 
-            //let b3 = calculateThirdBlock(start, m1) in 
-              let p1 = writeMMBlock(b1) in 
-               writeMMBlock(b2)
-         
-         
+   let m1 = {{1,2,3,4}, {3,1,2,0}, {9,10,11,12}, {13,14,15,16}} in 
+         let blocksNumber = (size(sizeB(m1))/start) in 
+              calculateBlock(start,m1,0,2)
+            
+      
+        
