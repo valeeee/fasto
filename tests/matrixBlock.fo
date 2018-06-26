@@ -92,8 +92,8 @@ fun [int] traspose  (int x, [[int]] matrix) =
     map (fn int ([int] y) => y[x], matrix)     
 
 //return a partion of the matrix by row, where s is the number of requested rows
-fun [[int]] rowselection ([[int]] matrix, int s) = 
-        map (fn [int] (int x) => matrix[x], iota(s))
+fun [[int]] rowselection ([[int]] matrix, int s, int indexRow) = 
+           map (fn [int] (int x) => matrix[indexRow+x], iota(s))
 
 fun [[int]] rowselection2 ([[int]] matrix, int s) = 
        map (fn [int] (int x) => matrix[s+x], iota(2)) //da sistemare con scarti di righe 
@@ -113,16 +113,17 @@ fun [int] sumMatrix ([int] array1, [int] array2) =
 
 fun int sizeMatrix ([[int]] matrix) = (size(sizeB(matrix))*size(sizeB(matrix)))
 
-fun [[int]] calculateBlock (int s, [[int]] matrix, int index, int count) = 
-        if (count < 1) then {{1011110101010101}}
+fun [[int]] calculateBlock (int s, [[int]] matrix, int indexColumn, int count, int indexRow) = 
+    let finish = {{0}} in 
+        if (count < 1) then {{0}}
            else 
-              let b1 = map (fn [int] (int x)=> ColumnElement (matrix,index+x), iota(s)) in 
-                 let b2 = rowselection(VectorColumnMatrix(b1), s) in
+              let b1 = map (fn [int] (int x)=> ColumnElement (matrix,indexColumn+x), iota(s)) in 
+                 let b2 = rowselection(VectorColumnMatrix(b1), s, indexRow) in
                   let res = writeMMBlock(b2) in 
-                     let i2 = index + s  in 
+                     let i2 = indexColumn + s  in 
                       let c2 = count-1 in  
                     //   //  let separate = write("-------------------------------------------------------------------------") in 
-                        calculateBlock (s, matrix, i2, c2) 
+                        calculateBlock (s, matrix, i2, c2, indexRow) 
 
 // //this function takes the size of the previous block and calculate the next one considering the size of the matrix
 // fun [[int]] calculateSecondBlock (int s, [[int]] matrix, int c, [[int]] b) = 
@@ -162,11 +163,12 @@ fun int insert () =
     let a = write("insert size of the squared blocks:\n") in 
         readInt(1) 
 
-fun [[int]] main () = 
+fun [[[int]]] main () = 
   let start = insert() in 
-   let m1 = {{1,2,3,4}, {3,1,2,0}, {9,10,11,12}, {13,14,15,16}} in 
+   let m1 = {{1,2,3,4,5}, {6,7,8,9,10}, {11,12,13,14,15}, {16,17,18,19,20}, {21,22,23,24,25}} in 
          let blocksNumber = (size(sizeB(m1))/start) in 
-              calculateBlock(start,m1,0,2)
+          let indexBlocks = map (fn int (int x)=> (x*start), iota(start)) in
+             map (fn [[int]] (int x) => calculateBlock(start,m1,0,blocksNumber,x), indexBlocks)
             
       
         
