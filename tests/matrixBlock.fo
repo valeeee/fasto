@@ -130,8 +130,7 @@ fun [[[int]]] main () =
    let m1 = {{1,2,3,4,5}, {6,7,8,9,10}, {11,12,13,14,15}, {16,17,18,19,20}, {21,22,23,24,25}} in 
          let blocksNumber = (size(sizeB(m1))/start) in 
           let indexRow = map (fn int (int x)=> (x*start), iota((size(sizeB(m1))/start))) in
-            let RowindexBlocks = map (fn int (int x) => indexRow[x], indexRow) in 
-             map (fn [[int]] (int x) => calculateBlock(start,m1,0,blocksNumber,x), RowindexBlocks)
+             map (fn [[int]] (int x) => calculateBlock(start,m1,0,blocksNumber,x), indexRow)
             
  
         

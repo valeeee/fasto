@@ -27,13 +27,16 @@ fun int mod (int n, int q) = n - ((n/q)*q)
 fun int maxArr ([int] a) = reduce (max, a[0], a)
 
 //this function return an array with in a[0] the row index and in a[1] the column index
-//index start from 0 to max of array
 fun [int] getIndex (int index, [[int]] array) = 
   let s = sizeB(array) in
     let m = mod(index,s[0]) in 
         let row = (index/s[0])+1 in 
              let column = m+1 in 
                 {row, column}
+
+//this functions returns i+j
+fun int getPlusIndex ([int] array) = 
+     array[0]+array[1]
 
 //returns the value in the bidimensional array correspondant to the index {i,j} 
 //where i is the row and j is the column. 
@@ -71,17 +74,50 @@ fun int checkResult (int x, int i) =
 
 fun int product (int a, int b) = 
     a*b
-
-
-fun int main () = 
-//element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
-    let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
-        let pos = diagIndexScan(matrix) in 
-          //if we are considering the element of the diagonal I don't need to check the value in the matrix. It's always true = 1. 
-            let result = map (fn int ([int] element) => if (element[0]==0) 
-                  then checkValue({element[1], element[2]}, matrix) else 1, pos) in
-                   reduce(product, 1, result)
+fun int signAlgebComplement (int i) = 
+ if (mod(i,2) == 0) then 1 else ~1
 
 
 
+//return a partion of the matrix by row, where s is the number of requested rows
+fun [[int]] rowselection ([[int]] matrix, int s, int indexRow) = 
+           map (fn [int] (int x) => matrix[indexRow+x], iota(s))
+
+fun [[int]] firstRowBlock ([[int]] matrix, int s, int indexRow) = 
+   if s < 1 then secondRowBlock (matrix, s, indexRow) else
+   rowselection (matrix, s, 0) 
+        
+fun [[int]] secondRowBlock ([[int]] matrix, int s, int indexRow) = 
+  if s < 1 then {{0000000000000000000}} else
+   rowselection (matrix, s, indexRow) 
+
+fun [[[int]]] composeBlocks ([[int]] matrix, int index) = 
+ let address = getIndex(index, matrix) in 
+  let firstRows = address[0]-1 in //address[0]-1 as I need to take all the rows before the index
+    let secondRows = size(sizeB(matrix))-firstRows-1 in 
+     let b1 = firstRowBlock (matrix, firstRows, 0) in 
+       let b2 = secondRowBlock (matrix, secondRows, firstRows+1) in 
+          map (fn [[int]]([int] x) => x::b2, b1)
+        
+
+
+
+// fun int determinant (matrix, index) = 
+//  let address = getIndex (index, matrix)  in 
     
+fun [[[int]]] main () = 
+    let matrix = {{2,0,0,0}, {0,222,0,0}, {0,0,1,0}, {0,0,0,1}} in 
+        composeBlocks(matrix, 4)
+
+        //   let address = getIndex (index, matrix) in 
+        //  //getPlusIndex = i+j
+        //    let iPlusj =  getPlusIndex(address) in 
+        //  let sign = signAlgebComplement(iPlusj) in 
+        //   sign*determinant(matrix, index)
+        //composeBlocks (matrix, index)
+
+//instead of calculate (-1)^(i+j) this function 
+//returns 1 if i+j is even or -1 if i+j is odd
+// fun int main () = 
+//     let i = signAlgebComplement(3) in 
+//         write(i) //i sarebbe la sequenza di 1 e -1 da moltiplicare per il minore complementare
