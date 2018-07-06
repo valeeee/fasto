@@ -18,6 +18,7 @@ fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 fun int size ([int] a) = reduce (incr, 0, ones(a))
 
 //this calculate the length of each row in the bidimensional array b
+//columns number
 fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
 
 //this calcuate the module 
@@ -89,49 +90,65 @@ fun [[int]] columnselection ([[int]] matrix, int s, int indexColumn) =
 fun [int] ColumnElement ([[int]] matrix, int c) = map (fn int ([int] x) => x[c], matrix)
 
 fun [[int]] firstRowBlock ([[int]] matrix, int s, int indexRow) = 
-   if s < 1 then secondRowBlock (matrix, s, indexRow) else
+   if s < 1 then secondRowBlock (matrix, s, indexRow) else // controllare se serve if anche sotto
    rowselection (matrix, s, 0) 
-
 fun [[int]] firstColumnBlock ([[int]] matrix, int s, int indexColumn) = 
    if s < 1 then secondColumnBlock (matrix, s, indexColumn) else
-   columnselection (matrix, s, 0) 
+   columnselection (matrix, s, indexColumn) 
         
 fun [[int]] secondRowBlock ([[int]] matrix, int s, int indexRow) = 
   if s < 1 then {{0000000000000000000}} else
    rowselection (matrix, s, indexRow) 
 
 fun [[int]] secondColumnBlock ([[int]] matrix, int s, int indexColumn) = 
-  if s < 1 then {{0000000000000000000}} else
    columnselection (matrix, s, indexColumn) 
    
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
     map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
 
-
 fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)  
 
-fun int shift (int size) = 
- if size < 1 then size else
-    let result = (size) in 
-      let ric =  shift(size-1) in 
-        ric
+fun [int] addset ([int] q, [int] b) =
+   let z = {b[0]} in
+    map (fn [int] (int x) => q[x]::z, iota(size(q))) 
+    
 
-fun [[int]] composeBlocks ([[int]] matrix, int index) = 
- let address = (getIndex(index, matrix)) in 
-      let firstColumns = address[1]-1    in 
-        let secondColumns = size(sizeB(matrix))-firstColumns-1 in 
-          let b0 = firstColumnBlock (matrix, firstColumns, 0) in 
-            let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in 
-              let a = VectorColumnMatrix(b0) in 
-               let b = VectorColumnMatrix(b1) in 
-            let resCol =  map (fn [int] (int x)=> let q = a[x] in q[0]::b[x], iota(size(sizeB(a)))) in 
-                let firstRows = address[0]-1 in //address[0]-1 as I need to take all the rows before the index
+fun [[int]] composeBlocks ([[int]] matrix, int i) = 
+ let address = (getIndex(i, matrix)) in 
+      let firstColumns = address[1]-1   in
+        if firstColumns < 1 then 
+          let secondColumns = size(sizeB(matrix))-1 in 
+            let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
+              let b = VectorColumnMatrix(b1) in 
+                let firstRows = 0 in //address[0]-1 as I need to take all the rows before the index
                     let secondRows = size(sizeB(matrix))-firstRows-1 in 
-                      let r0 = firstRowBlock (resCol, firstRows, 0) in 
-                        let r1 = secondRowBlock (resCol, secondRows, firstRows+1) in 
-                        {r0,r1}
-       
+                        let result = secondRowBlock (b, secondRows, firstRows+1) in 
+                       result
+              else 
+                let b0 = firstColumnBlock (matrix, firstColumns, 0) in 
+                 let secondColumns = size(sizeB(matrix))-1-firstColumns in 
+                  let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
+                   let b = VectorColumnMatrix(b1) in 
+                     let a = VectorColumnMatrix(b0)   in 
+                      let resCol = map (fn [int] (int x)=> calcVal (a[x], b[x]), iota(size(sizeB(a)))) in 
+                      
+                      let firstRows = address[0]-1 in //address[0]-1 as I need to take all the rows before the index
+                       let secondRows = size(sizeB(matrix))-firstRows-1 in 
+                          if firstRows < 1 
+                             then let result = secondRowBlock (resCol, secondRows, firstRows+1) in 
+                             result 
+                               else 
+                                let result = secondRowBlock (resCol, secondRows, firstRows+1) in 
+                              result
+
+fun [int] calcVal ([int] ael, [int] bel) = 
+ if size(ael) < 2 then ael[0]::bel else
+ let s = size(ael)-1 in 
+   let res = ael[s]::bel in
+    let aelnew = map (fn int (int x) => ael[x], iota(size(ael)-1)) in 
+      calcVal(aelnew, res) 
+     
 
 
 // fun int determinant (matrix, index) = 
@@ -139,9 +156,9 @@ fun [[int]] composeBlocks ([[int]] matrix, int index) =
     
 fun [[int]] main () = 
     let matrix = {{1,2,3,4}, {9,6,7,8}, {0,0,1,0}, {0,0,0,1}} in 
-        composeBlocks(matrix, 0)
+        //map (fn [[int]] (int x) => composeBlocks(matrix), iota(size(sizeB(matrix))))
 
-
+        composeBlocks(matrix,2)
 
 
         //   let address = getIndex (index, matrix) in 
