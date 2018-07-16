@@ -104,6 +104,6 @@ fun [int] traspose  (int x, [[int]] matrix) =
 fun [[int]] main () = let matrix1 = {{1,2,3}, {1,2,3}, {0,0,0},{0,0,0}} in
     let matrix2 = {{1,1,1,1},{1,1,1,1},{1,1,1,1}} in 
         let vc = trasposeMatrix(matrix2) in
+          if checkRowColumnNumber (matrix1, matrix2) == true then 
                writeMMInt (map (fn [int] (int x) => productMatrix (matrix1[x], vc), iota(size(sizeB(matrix1)))) )
-            
-    
+                else {{0}}

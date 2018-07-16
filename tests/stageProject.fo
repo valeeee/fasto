@@ -278,9 +278,12 @@ fun int main () =
     
     if b == 2 then let q = writeMMInt (map (fn [int] (int x) => sumMatrix(matrix[x], matrix2[x]), iota(size(sizeB(matrix)))))
           in 1 else 
-          //ampliare con test sulla conformità del prodotto...controllare numero righe e numero colonne
-    if b ==3 then  let w = writeMMInt (map (fn [int] (int x) => productMatrix (matrix[x], matrix2), iota(size(sizeB(matrix)))) ) 
-            in 1 else 
+          
+    if b ==3 then 
+    //size conformity row-column for the product 
+      if checkRowColumnNumber (matrix, matrix2) == true then 
+        let w = writeMMInt (map (fn [int] (int x) => productMatrix (matrix[x], matrix2), iota(size(sizeB(matrix)))) ) 
+            in 1 else 0  else 
     if b == 4 then let start = insert () in let blocksNumber = (size(sizeB(matrix))/start) in 
              let indexRow = map (fn int (int x)=> (x*start), iota((size(sizeB(matrix))/start))) in
               let e =  map (fn [[int]] (int x) => calculateBlock(start,matrix,0,blocksNumber,x), indexRow) 
