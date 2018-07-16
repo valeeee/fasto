@@ -31,7 +31,6 @@ fun int incr (int x, int m2val) = x+m2val
 //create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
-fun [int] head ([int] x) = {x[0]}
 
 fun  int  writeInt  ( int i ) = 
         let s = write ("\t") in
@@ -104,10 +103,6 @@ fun [int] traspose  (int x, [[int]] matrix) =
 //                //map for the row of the requested block 
 //                      map (fn int ([int] x) => getValue({x[0],x[1]}, matrix), subPos) 
 
-
-//return a partion of the matrix by rows, where s is the number of requested rows
-fun [[int]] rows ([[int]] matrix, int s) = 
-        map (fn [int] (int x) => matrix[x], iota(s))
 
 fun [int] ColumnElement ([[int]] matrix, int c) = map (fn int ([int] x) => x[c], matrix)
                      

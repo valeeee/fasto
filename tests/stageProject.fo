@@ -1,0 +1,317 @@
+fun  int  readInt   ( int i ) = read(int) 
+fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
+
+fun [[int]] writeMMBlock([[int]] n) = let x = write("-------------------------------------------------------------------------") in 
+            map(writeMInt, n) 
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int y) = x+y
+
+//this functions returns the greatest value of a and b
+fun int max (int a, int b) = if (b < a) then a else b 
+
+fun [int] writeIntArr([int] x) = map(writeInt, x)
+
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let y = write (i) in 
+        let z = write ("\t") in y
+
+fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
+
+fun [int] writeMInt([int] n) = 
+        let x = write("\n ") in 
+        let y = map(writeInt, n) in
+        let z = write (" \n") in y
+
+
+fun int sizeMatrix ([[int]] matrix) = (size(sizeB(matrix))*size(sizeB(matrix)))
+
+
+fun [[int]] calculateBlock (int s, [[int]] matrix, int indexColumn, int count, int indexRow) = 
+    let finish = {{0}} in 
+        if (count < 1) then {{0}}
+           else 
+              let b1 = map (fn [int] (int x)=> ColumnElement (matrix,indexColumn+x), iota(s)) in 
+                 let b2 = rowselection(VectorColumnMatrix(b1), s, indexRow) in
+                  let res = writeMMBlock(b2) in 
+                     let i2 = indexColumn + s  in 
+                      let c2 = count-1 in  
+                    //   //  let separate = write("-------------------------------------------------------------------------") in 
+                        calculateBlock (s, matrix, i2, c2, indexRow) 
+fun int product (int a, int b) = 
+    a*b
+
+
+fun int checkIsZero ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
+//function that scan all the matrix and return 1 if all the rows are in the same size or 0 else
+fun int checkSize ([[int]] m) = let i = sizeB(m) in  
+                reduce (fn int (int b, int c) => 
+                                if b == 0 then 0
+                                        else 
+                                if c == size(i) then 1 else 0, 
+                                        1, i)
+//create a squared matrix with the size = i 
+fun [[int]] createMatrix (int i) = 
+ let z = map (fn [int] (int x) => createArrElement (i), iota(i)) 
+ in writeMMInt(z)
+
+
+//this works only for squared matrix 
+fun int maxIndexNS ([[int]] matrix) =  
+    size(sizeB(matrix))*maxArr(sizeB(matrix))
+
+
+//create an array reading i element with readIntArr
+fun [int] createArrElement (int i) = readIntArr (i)
+
+//creates an array with size i 
+fun [int] createArr (int i) = map (fn int (int x) => x, iota (i))
+
+fun int insert () = 
+    let a = write("insert size of the squared blocks:\n") in 
+        readInt(1) 
+
+fun int insert2 () = 
+    let a = write("insert scalar value:\n") in 
+        readInt(1) 
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+//columns number
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+//this calcuate the module 
+fun int mod (int n, int q) = n - ((n/q)*q)
+
+//this function take a as array and returns the greatest value in the array
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+
+//this function return an array with in a[0] the row index and in a[1] the column index
+fun [int] getIndex (int index, [[int]] array) = 
+  let s = sizeB(array) in
+    let m = mod(index,s[0]) in 
+        let row = (index/s[0])+1 in 
+             let column = m+1 in 
+                {row, column}
+
+//this functions returns i+j
+fun int getPlusIndex ([int] array) = 
+     array[0]+array[1]
+
+//returns the value in the bidimensional array correspondant to the index {i,j} 
+//where i is the row and j is the column. 
+//Mind that i and j doesn't start from 0 (as index array in Fasto)
+fun int getValue ([int] index, [[int]] array) = 
+    let i = index[0]-1 in
+        let row = array[i] in
+                let column = index[1]-1 in 
+                     row[column] 
+
+fun int checkValue ([int] index, [[int]] array) = 
+        let value =  getValue({index[0], index[1]}, array) in 
+                        if value == 0 then 1 else 0 
+
+//returns 1 if j and j are the same value. 
+fun int diagIndex ([int] index) = 
+    if index[0] == index [1] then 1 else 0
+
+//this works only for squared matrix 
+fun int maxIndex ([[int]] matrix) =  
+    size(sizeB(matrix))*maxArr(sizeB(matrix)) //rownumber*the max of the column numbers basically the size of the matrix
+
+
+fun [[int]] createPosMatrix ([[int]] matrix) = 
+    map (fn [int] (int i) => 
+        getIndex(i,matrix), iota(maxIndex(matrix)))
+
+
+fun [int] calcValue ([int] array, int y) = 
+     map (fn int (int x) => array[x]*y, iota(size(array))) 
+
+                     
+//return a partion of the matrix by column, where s is the number of requested columns
+fun [[int]] columns ([[int]] matrix, int s) = 
+       map (fn [int] (int x) => ColumnElement(matrix, x), iota(s))
+
+
+
+fun [[int]] diagIndexScan ([[int]] matrix) = 
+    let pos = createPosMatrix(matrix) in 
+        map (fn [int] ([int] x) => if x[0] == x [1] then 1::x else 0::x, pos) 
+
+fun int checkResult (int x, int i) = 
+    if (x==1 && i==1) then 1 else 0
+
+
+//instead of calculate (-1)^(i+j) this function 
+//returns 1 if i+j is even or -1 if i+j is odd
+fun int signAlgebComplement (int i) = 
+ if (mod(i,2) == 0) then 1 else ~1
+
+
+
+//return a partion of the matrix by row, where s is the number of requested rows
+fun [[int]] rowselection ([[int]] matrix, int s, int indexRow) = 
+           map (fn [int] (int x) => matrix[indexRow+x], iota(s))
+
+fun [[int]] columnselection ([[int]] matrix, int s, int indexColumn) = 
+       map (fn [int] (int x) => ColumnElement(matrix, indexColumn+x), iota(s))
+
+fun [int] ColumnElement ([[int]] matrix, int c) = map (fn int ([int] x) => x[c], matrix)
+
+fun [[int]] firstRowBlock ([[int]] matrix, int s, int indexRow) = 
+   if s < 1 then secondRowBlock (matrix, s, indexRow) else // controllare se serve if anche sotto
+   rowselection (matrix, s, 0) 
+fun [[int]] firstColumnBlock ([[int]] matrix, int s, int indexColumn) = 
+   if s < 1 then secondColumnBlock (matrix, s, indexColumn) else
+   columnselection (matrix, s, indexColumn) 
+        
+fun [[int]] secondRowBlock ([[int]] matrix, int s, int indexRow) = 
+  if s < 1 then {0} else
+   rowselection (matrix, s, indexRow) 
+
+fun [[int]] secondColumnBlock ([[int]] matrix, int s, int indexColumn) = 
+   columnselection (matrix, s, indexColumn) 
+   
+fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
+    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+
+fun [int] traspose  (int x, [[int]] matrix) = 
+    map (fn int ([int] y) => y[x], matrix)  
+
+//returns a bidimensional array with the column vectors of the matrix
+fun [[int]] trasposeMatrix ([[int]] matrix) =  
+    map (fn [int] (int x) => traspose (x, matrix) , iota(maxArr(sizeB(matrix))) )
+
+
+ fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
+     map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(size(sizeB(vectorColumnM))))
+
+
+fun [[[int]]] subMatrixTot ([[int]] matrix) = 
+ let size = size(sizeB(matrix)) in 
+   map (fn [[int]] (int x) => subMatrix(matrix,x), iota(size))
+    
+
+fun [[int]] subMatrix ([[int]] matrix, int i) = 
+    let addr = (getIndex(i,matrix)) in 
+      let firstColumns = addr[1]-1   in
+        if firstColumns < 1 then 
+          let secondColumns = size(sizeB(matrix))-1 in 
+            let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
+              let b = VectorColumnMatrix(b1) in 
+                let firstRows = 0 in //addr[0]-1 as I need to take all the rows before the index
+                    let secondRows = size(sizeB(matrix))-firstRows-1 in 
+                        let result = secondRowBlock (b, secondRows, firstRows+1) in 
+                       result
+              else 
+                let b0 = firstColumnBlock (matrix, firstColumns, 0) in 
+                 let a = VectorColumnMatrix(b0)   in 
+                  let secondColumns = size(sizeB(matrix))-1-firstColumns in 
+                    if secondColumns < 1 then secondRowBlock(a, size(sizeB(matrix))-1, 1) else 
+                     let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
+                      let b = VectorColumnMatrix(b1) in 
+                       let resCol = map (fn [int] (int x)=> calcVal (a[x], b[x]), iota(size(sizeB(a)))) in 
+                        let firstRows = 0 in //addr[0]-1 as I need to take all the rows before the index
+                         let secondRows = size(sizeB(matrix))-firstRows-1 in   
+                          let result = secondRowBlock(resCol, secondRows, firstRows+1) in 
+                          result 
+                              
+
+fun [int] calcVal ([int] ael, [int] bel) = 
+ if size(ael) < 2 then ael[0]::bel else
+ let s = size(ael)-1 in 
+   let res = ael[s]::bel in
+    let aelnew = map (fn int (int x) => ael[x], iota(size(ael)-1)) in 
+      calcVal(aelnew, res) 
+     
+fun int determinant ([[int]] matrix) = 
+    let size = size(sizeB(matrix)) in
+        if size < 2 then let a = matrix[0] in a[0] else
+            if size < 3 then getValue ({1,1},matrix)*getValue({2,2},matrix)-(getValue({2,1},matrix)*getValue({1,2},matrix)) 
+            else  
+            let index = iota(size (sizeB(matrix))) in 
+             let sign = map (fn int (int x)=> signAlgebComplement(getPlusIndex(getIndex(x,matrix))), index) in
+              let matrixList = subMatrixTot(matrix) in 
+                let subDet = map (fn int ([[int]] x)=> determinant(x), matrixList) in 
+                 let values = map (fn int (int x)=> sign[x]*subDet[x], index) in 
+                    reduce (op +, 0, values) 
+            
+
+fun int sumValue ([int] array, int m2Val,[[int]] matrix1) = 
+          getValue(array, matrix1) + m2Val 
+            //fare la copia di matrix1 e salvare il nuovo valore modificato????
+
+fun [int] sumMatrix ([int] array1, [int] array2) = 
+        map (fn int (int x) => array1[x]+array2[x], iota(size(array1)))
+
+
+fun  int columnNumber ([[int]] matrix) = 
+            maxArr(sizeB(matrix)) 
+
+fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) = 
+        let rowNumber = size(sizeB(matrix2)) in
+            columnNumber(matrix1)== rowNumber
+
+
+fun int productArray ([int] a, [int] b) = 
+   let res =  map (fn int (int x) => a[x]*b[x], iota(size(a))) in 
+        reduce(incr, 0, res)
+    
+fun int main () = 
+ let matrix = {{1,2,3},{4,5,6},{7,8,9}} in 
+  let matrix2 = {{0,0,0},{0,0,0},{0,0,0}} in 
+   let a = write ("Please select one of the following functions:\n 1 Determinant \n 2 Sum of Matrix \n 3 Product of Matrix \n 4 Blocks decompositions \n 5 Check diagonal matrix \n 6 Check null matrix \n 7 Check squared matrix \n 8 Transpose matrix \n 9 Scalar product \n\nPlease insert the relative number:\n") 
+     in let b = readInt(1) in 
+      
+    if b < 1 || 9 < b then let c = write("Error: wrong choice number, please try again!\n") in 0 else 
+    
+    if b == 1 then determinant (matrix) else 
+    
+    if b == 2 then let q = writeMMInt (map (fn [int] (int x) => sumMatrix(matrix[x], matrix2[x]), iota(size(sizeB(matrix)))))
+          in 1 else 
+          //ampliare con test sulla conformità del prodotto...controllare numero righe e numero colonne
+    if b ==3 then  let w = writeMMInt (map (fn [int] (int x) => productMatrix (matrix[x], matrix2), iota(size(sizeB(matrix)))) ) 
+            in 1 else 
+    if b == 4 then let start = insert () in let blocksNumber = (size(sizeB(matrix))/start) in 
+             let indexRow = map (fn int (int x)=> (x*start), iota((size(sizeB(matrix))/start))) in
+              let e =  map (fn [[int]] (int x) => calculateBlock(start,matrix,0,blocksNumber,x), indexRow) 
+               in 1 else 
+    if b == 5 then 
+             //element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
+              let pos = diagIndexScan(matrix2) in 
+              //in case we are considering the element of the diagonal I don't need to check the value in the matrix. It's always true = 1. 
+                let result = map (fn int ([int] element) => if (element[0]==0) 
+                  then checkValue({element[1], element[2]}, matrix2) else 1, pos) in
+                    reduce(product, 1, result) else 
+    if b == 6 then  
+                      let pos = createPosMatrix(matrix2) in 
+                        let res = map (fn int ([int] x) => checkIsZero (x,matrix2), pos) in 
+                          writeInt(reduce (checkResult, 1, res)) else 
+    if b == 7 then let r = writeMMInt (matrix) in 
+                            writeInt(checkSize(matrix)) else 
+    if b == 8 then  VectorColumnMatrix(matrix) else 
+    
+    if b == 9 then let scal = insert2() in 
+                               let t = writeMMInt (map (fn [int] ([int] x) => calcValue (x,scal), matrix)) in 1
+                                else 0 
+    
+            
+
+
+    
+ 
+            
+ 
+            
+    
+
+

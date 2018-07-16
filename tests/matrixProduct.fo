@@ -14,8 +14,6 @@ fun int incr (int x, int m2val) = x+m2val
 //create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
-fun [int] head ([int] x) = {x[0]}
-
 fun  int  writeInt  ( int i ) = 
         let s = write ("\t") in
         let m2val = write (i) in 
@@ -49,19 +47,10 @@ fun int getValue ([int] index, [[int]] array) =
                      row[column] 
 
 
-// fun [int] getValueArray (int index, [[int]] array) = 
-//     let i = getIndex(index, array) in 
-//                  map (getValue (i, array) 
-                   
-
-
 fun int checkValue ([int] index, [[int]] array) = 
         let value =  getValue({index[0], index[1]}, array) in 
                         if value == 0 then 1 else 0 
 
-// //returns true if j and j are the same value. 
-// fun bool diagIndex ([int] array) = 
-//     if array[0] == array [1] then true else false
 
 //returns 1 if j and j are the same value. 
 fun int diagIndex ([int] array) = 

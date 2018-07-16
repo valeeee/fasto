@@ -54,12 +54,6 @@ fun int diagIndex ([int] index) =
 fun int maxIndex ([[int]] matrix) =  
     size(sizeB(matrix))*size(sizeB(matrix))
 
-// fun [int] createIndex (int max) =
-//     iota (max)
-
-// fun int main () =  let matrix = {{1,2},{3,4}} in 
-//     let indice = getIndex(0,matrix) in
-//     getValue(indice,matrix)
 
 fun [[int]] createPosMatrix ([[int]] matrix) = 
     map (fn [int] (int i) => 

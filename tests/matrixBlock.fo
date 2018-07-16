@@ -19,8 +19,6 @@ fun int incr (int x, int m2val) = x+m2val
 //create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
-fun [int] head ([int] x) = {x[0]}
-
 fun  int  writeInt  ( int i ) = 
         let s = write ("\t") in
         let m2val = write (i) in 
@@ -99,8 +97,6 @@ fun [[int]] rowselection ([[int]] matrix, int s, int indexRow) =
 
 fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
     map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
-
-fun int getPositive (int x) = if (x<0) then ~x else x
 
 
 fun [int] sumMatrix ([int] array1, [int] array2) = 
