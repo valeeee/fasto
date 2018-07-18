@@ -1,0 +1,31 @@
+
+//only for squared matrix 
+fun int sizeMatrix ([[int]] matrix) = (size(sizeB(matrix))*maxArr(sizeB(matrix)))
+
+
+
+//this functions returns the greatest value of a and b
+fun int max (int a, int b) = if (b < a) then a else b 
+
+
+//this will be used in the size function for counting the element array 
+fun int incr (int x, int m2val) = x+m2val
+
+//this function take a as array and returns the greatest value in the array
+fun int maxArr ([int] a) = reduce (max, a[0], a)
+
+//create an array with all elements with column 1
+fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
+
+
+//this calcuate the size of the array a
+fun int size ([int] a) = reduce (incr, 0, ones(a))
+
+//this calculate the length of each row in the bidimensional array b
+fun [int] sizeB ([[int]] b) = map (fn int ([int] x) => size (x), b)
+
+
+fun int main () = 
+
+   let a = {{1,2,3},{1,2,3},{1,2,3}, {11,22,11,12}} in 
+    sizeMatrix(a)
