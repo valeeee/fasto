@@ -4,19 +4,19 @@ fun  int  writeInt  ( int i ) =
         let z = write ("\t") in y
 fun  int  readInt   ( int i ) = read(int) //
 fun [int] readIntArr( int n ) = map (readInt, iota(n)) 
-fun [int] createArr (int i) = map (fn int (int x) => x, iota (i))
 fun [int] writeIntArr([int] x) = map(writeInt, x)
-fun [[int]] writeIntArrB([[int]] x) = map(writeIntArr, x)
-fun [int] createArrElement (int i) = readIntArr (i)
-fun [[int]] createMatrix (int i) = 
-        map (fn [int] (int x) => createArrElement (i), iota(i)) 
+
+fun [[int]] createMatrix (int r,int c) = 
+        map (fn [int] (int x) => readIntArr (c), iota(r)) 
 
 
 fun [[int]] insert () = 
-    let y = write  ("insert size of the squared matrix: \n") in 
-    let x = read(int) in 
-    let z = write ("insert values: \n") in 
-    createMatrix(x)
+    let y = write  ("insert number of rows: \n") in 
+    let r = read(int) in 
+    let z = write ("insert number of columns: \n") in 
+    let c = read(int) in
+    let val = write ("insert values:\n") in 
+    createMatrix(r,c)
 
 fun [[int]] writeMMInt([[int]] n) = map(writeMInt, n)
 
@@ -27,5 +27,5 @@ fun [int] writeMInt([int] n) =
 
 
 fun [[int]] main () = 
-        let a = {{1,1},{1,1}} in 
-                writeMMInt(a)
+        
+       insert()

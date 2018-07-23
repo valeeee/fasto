@@ -33,7 +33,7 @@ fun [[int]] calculateBlock (int s, [[int]] matrix, int indexColumn, int count, i
         if (count < 1) then {{0}}
            else 
               let b1 = map (fn [int] (int x)=> ColumnElement (matrix,indexColumn+x), iota(s)) in 
-                 let b2 = rowselection(VectorColumnMatrix(b1), s, indexRow) in
+                 let b2 = rowselection(trasposeMatrix(b1), s, indexRow) in
                   let res = writeMMBlock(b2) in 
                      let i2 = indexColumn + s  in 
                       let c2 = count-1 in  
@@ -54,32 +54,42 @@ fun int checkSize ([[int]] m) = let i = sizeB(m) in
                                         else 
                                 if c == size(i) then 1 else 0, 
                                         1, i)
-//create a squared matrix with the size = i 
-fun [[int]] createMatrix (int i) = 
- let z = map (fn [int] (int x) => createArrElement (i), iota(i)) 
- in writeMMInt(z)
 
-
-// ?????????????? PLEASE CHECK THIS 
-fun int maxIndexNS ([[int]] matrix) =  
-    size(sizeB(matrix))*maxArr(sizeB(matrix))
-
-
-//create an array reading i element with readIntArr
-fun [int] createArrElement (int i) = readIntArr (i)
+//create a squared matrix with the size = r * c (rows * columns)
+fun [[int]] createMatrix (int r,int c) = 
+        map (fn [int] (int x) => readIntArr (c), iota(r)) 
 
 
 fun [[int]] insert1 () = 
     let y = write  ("insert rows or columns number of the squared matrix: \n") in 
     let x = read(int) in 
     let z = write ("insert values: \n") in 
-    createMatrix(x)
+    createMatrix(x,x)
+
+
+fun [[int]] insert2 () = 
+    let y = write  ("insert number of rows of FIRST MATRIX: \n") in 
+    let r = read(int) in 
+    let z = write ("insert number of columns of FIRST MATRIX: \n") in 
+    let c = read(int) in
+    let val = write ("insert values:\n") in 
+    createMatrix(r,c)
 
 fun [[int]] insert3 () = 
-    let y = write  ("insert rows or columns number of the matrix: \n") in 
-    let x = read(int) in 
-    let z = write ("insert values: \n") in 
-    createMatrix(x)
+    let y = write  ("insert number of rows of SECOND MATRIX: \n") in 
+    let r = read(int) in 
+    let z = write ("insert number of columns of SECOND MATRIX: \n") in 
+    let c = read(int) in
+    let val = write ("insert values:\n") in 
+    createMatrix(r,c)
+
+fun [[int]] insert7 () = 
+    let y = write  ("insert number of rows of matrix: \n") in 
+    let r = read(int) in 
+    let z = write ("insert number of columns of matrix: \n") in 
+    let c = read(int) in
+    let val = write ("insert values:\n") in 
+    createMatrix(r,c)
 
 fun int insert4 () = 
     let a = write("insert size of the squared blocks:\n") in 
@@ -88,6 +98,7 @@ fun int insert4 () =
 fun int insert9 () = 
     let a = write("insert scalar value:\n") in 
         readInt(1) 
+
 //create an array with all elements with column 1
 fun [int] ones ([int] a) = let result = 0 in map (fn int (int x) => result+1, a)
 
@@ -190,9 +201,7 @@ fun [[int]] secondRowBlock ([[int]] matrix, int s, int indexRow) =
 
 fun [[int]] secondColumnBlock ([[int]] matrix, int s, int indexColumn) = 
    columnselection (matrix, s, indexColumn) 
-   
-fun [[int]] VectorColumnMatrix ([[int]] matrix) = 
-    map (fn [int] (int x) => traspose (x, matrix) ,  iota(maxArr(sizeB(matrix))) )
+
 
 fun [int] traspose  (int x, [[int]] matrix) = 
     map (fn int ([int] y) => y[x], matrix)  
@@ -202,8 +211,9 @@ fun [[int]] trasposeMatrix ([[int]] matrix) =
     map (fn [int] (int x) => traspose (x, matrix) , iota(maxArr(sizeB(matrix))) )
 
 
- fun [int] productMatrix ([int] arrmatrix1, [[int]] vectorColumnM) = 
-     map (fn int (int x)   => productArray (arrmatrix1, vectorColumnM[x]) , iota(size(sizeB(vectorColumnM))))
+ fun [int] productMatrix ([int] arrmatrix1, [[int]] matrix2) = 
+    let tr = trasposeMatrix(matrix2) in 
+     map (fn int (int x)   => productArray (arrmatrix1, tr[x]) , iota(size(sizeB(tr))))
 
 
 fun [[[int]]] subMatrixTot ([[int]] matrix) = 
@@ -217,18 +227,18 @@ fun [[int]] subMatrix ([[int]] matrix, int i) =
         if firstColumns < 1 then 
           let secondColumns = size(sizeB(matrix))-1 in 
             let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
-              let b = VectorColumnMatrix(b1) in 
+              let b = trasposeMatrix(b1) in 
                 let firstRows = 0 in //addr[0]-1 as I need to take all the rows before the index
                     let secondRows = size(sizeB(matrix))-firstRows-1 in 
                         let result = secondRowBlock (b, secondRows, firstRows+1) in 
                        result
               else 
                 let b0 = firstColumnBlock (matrix, firstColumns, 0) in 
-                 let a = VectorColumnMatrix(b0)   in 
+                 let a = trasposeMatrix(b0)   in 
                   let secondColumns = size(sizeB(matrix))-1-firstColumns in 
                     if secondColumns < 1 then secondRowBlock(a, size(sizeB(matrix))-1, 1) else 
                      let b1 = secondColumnBlock (matrix, secondColumns, firstColumns+1) in
-                      let b = VectorColumnMatrix(b1) in 
+                      let b = trasposeMatrix(b1) in 
                        let resCol = map (fn [int] (int x)=> calcVal (a[x], b[x]), iota(size(sizeB(a)))) in 
                         let firstRows = 0 in //addr[0]-1 as I need to take all the rows before the index
                          let secondRows = size(sizeB(matrix))-firstRows-1 in   
@@ -271,14 +281,19 @@ fun bool checkRowColumnNumber ([[int]] matrix1, [[int]] matrix2) =
         let rowNumber = size(sizeB(matrix2)) in
             columnNumber(matrix1)== rowNumber
 
+fun bool conformityProduct ([[int]] matrix1, [[int]] matrix2) = 
+           let columnNumber1 = columnNumber(matrix1) in 
+            let rowNumber2 = size(sizeB(matrix2)) in 
+                columnNumber1 == rowNumber2
+                   
 
 fun int productArray ([int] a, [int] b) = 
    let res =  map (fn int (int x) => a[x]*b[x], iota(size(a))) in 
         reduce(incr, 0, res)
     
 fun int main () = 
- let matrix = {{1,2,3},{4,5,6},{7,8,9}} in 
-  let matrix2 = {{1,0,0},{0,1,0}} in 
+//  let matrix = {{1,2,3},{4,5,6},{7,8,9}} in 
+//   let matrix2 = {{1,0,0},{0,1,0}} in 
    let a = write ("Please select one of the following functions:\n 1 Determinant \n 2 Sum of Matrix \n 3 Product of Matrix \n 4 Blocks decompositions \n 5 Check diagonal matrix \n 6 Check null matrix \n 7 Check squared matrix \n 8 Transpose matrix \n 9 Scalar product \n\nPlease insert the relative number:\n") 
      in let b = readInt(1) in 
       
@@ -286,21 +301,19 @@ fun int main () =
     
     if b == 1 then let a = insert1() in determinant (a) else 
     
-    if b == 2 then let matrix = insert1() in let matrix2=insert1() in   
+    if b == 2 then let matrix = insert2() in let matrix2=insert3() in   
                     let size = sizeMatrix(matrix) in let size2 = sizeMatrix(matrix2) in 
                         if (size == size2) then 
                             let space = write ("\nresult is:\n") in let q = writeMMInt (map (fn [int] (int x) => sumMatrix(matrix[x], matrix2[x]), iota(size(sizeB(matrix)))))
                                 in 1 else 
                                     let a = write ("Error size of the first matrix different from the size of the second matrix\n") in 0 
-                                        else 
-          
+                                        else          
     if b ==3 then 
-    //size conformity row-column for the product missing!!!!
-        let matrix = insert3() in 
+        let matrix = insert2() in 
          let matrix2 = insert3() in
-          if checkRowColumnNumber (matrix, matrix2) == true then 
+          if conformityProduct(matrix, matrix2) == true then 
            let space = write ("\nresult of the product is:\n") in 
-            let w = writeMMInt (map (fn [int] (int x) => productMatrix (matrix[x], matrix2), iota(size(sizeB(matrix)))) ) in 1
+            let w = writeMMInt (map (fn [int] (int x) => productMatrix (matrix[x], matrix2), iota(size(sizeB(matrix)))) ) in 1 
               else let z = write("Error size of the first matrix different from the size of the second matrix\n") in 0 else 
 
     if b == 4 then let matrix = insert1 () in 
@@ -309,6 +322,7 @@ fun int main () =
              let indexRow = map (fn int (int x)=> (x*start), iota((size(sizeB(matrix))/start))) in
               let e =  map (fn [[int]] (int x) => calculateBlock(start,matrix,0,blocksNumber,x), indexRow) 
                in 1 else 
+
     if b == 5 then 
             let matrix = insert1() in 
               //element[0] = 1 if element is on the diagonal, 0 else. element[1] = row, element[2]= column
@@ -327,9 +341,12 @@ fun int main () =
                             if f == 1 then let g = write("\n the matrix is null\n") in 1 else let h = write ("\n the matrix is not null\n") in 0 
                           else 
 
-    if b == 7 then let r = writeMMInt (matrix) in 
-                            writeInt(checkSize(matrix)) else 
-    if b == 8 then  let matrix = insert1() in let j = VectorColumnMatrix(matrix) in let space = write ("\nresult of the transpose is:\n") in  let k = writeMMInt (j) in 1 else 
+    if b == 7 then let r = insert7() in 
+                            let f = writeInt(checkSize(r)) in 
+                             if f == 1 then let g = write("\n the matrix is squared\n") in 1 else let h = write ("\n the matrix is not squared\n") in 0 
+                            
+                            else 
+    if b == 8 then  let matrix = insert7() in let j = trasposeMatrix(matrix) in let space = write ("\nresult of the transpose is:\n") in  let k = writeMMInt (j) in 1 else 
     
     if b == 9 then let matrix = insert1() in let scal = insert9() in 
                      let space = write ("\nresult of the product is:\n") in 
