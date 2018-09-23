@@ -44,10 +44,12 @@ local open Obj Lexing in
        | "false"        => Parser.FALSE pos
        | "not"          => Parser.NOT pos
 (* specials: *)
+   
        | "iota"         => Parser.IOTA pos
        | "replicate"    => Parser.REPLICATE pos
        | "map"          => Parser.MAP pos
        | "append"       => Parser.APPEND pos
+   
        | "reduce"       => Parser.REDUCE pos
        | "filter"       => Parser.FILTER pos
        | "scan"         => Parser.SCAN pos

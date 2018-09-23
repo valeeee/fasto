@@ -311,6 +311,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
                                   ppVal 0 arr_val, pos)
     end
 
+
   | evalExp ( ArrCompr (e, bindings, conds, e_tp, arr_tps, pos ), vtab, ftab ) =
     let
       fun evalArray (exp, vtab, ftab) =
@@ -319,6 +320,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
         | _ => raise Error(
               "One of the binding expressions is not an array.", pos)
       val bindings' = map (fn (name, exp) => (name, evalArray (exp, vtab, ftab))) bindings
+
 
       fun evalBool (exp, vtab, ftab) =
         case evalExp (exp, vtab, ftab) of
@@ -481,6 +483,7 @@ fun evalExp ( Constant (v,_), vtab, ftab ) = v
                 IntVal x => IntVal (~x)
               | _ => invalidOperand Int res pos
         end
+
 
 (* Interpreter for Fasto function calls:
     1. f is the function declaration.

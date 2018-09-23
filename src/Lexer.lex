@@ -42,10 +42,12 @@
        | "false"        => Parser.FALSE pos
        | "not"          => Parser.NOT pos
 (* specials: *)
+   
        | "iota"         => Parser.IOTA pos
        | "replicate"    => Parser.REPLICATE pos
        | "map"          => Parser.MAP pos
        | "append"       => Parser.APPEND pos
+   
        | "reduce"       => Parser.REDUCE pos
        | "filter"       => Parser.FILTER pos
        | "scan"         => Parser.SCAN pos
@@ -91,7 +93,7 @@ rule Token = parse
 
   | `+`                 { Parser.PLUS   (getPos lexbuf) }
   | `-`                 { Parser.MINUS  (getPos lexbuf) }
-  | "::"                 { Parser.APPEND  (getPos lexbuf) }
+  | "::"                { Parser.APPEND  (getPos lexbuf) }
   | `*`                 { Parser.TIMES  (getPos lexbuf) }
   | `/`                 { Parser.DIVIDE  (getPos lexbuf) }
   | "&&"                { Parser.AND    (getPos lexbuf) }
