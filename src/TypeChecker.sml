@@ -149,6 +149,7 @@ and checkExp ftab vtab (exp : In.Exp)
           in (result_type, Out.Apply (f, args_dec, pos))
           end
 
+(*da controllare append aggiornare symtab?*) 
 
     | In.Append (e1, e2, pos)
         => let val (t1, e1_dec) = checkExp ftab vtab e1
@@ -160,7 +161,7 @@ and checkExp ftab vtab (exp : In.Exp)
          in if elem_type = t1
             then (Array elem_type,
                   Out.Append (e1_dec, arr_exp_dec, pos))
-            else raise Error ("Append: ......da completare......" , pos)
+            else raise Error ("Append: Error not unify array types" , pos)
          end
                 
 
@@ -364,7 +365,22 @@ and checkExp ftab vtab (exp : In.Exp)
    Remember that the generating expressions must be arrays, and the
    condition expressions must be boolean. *)
 
-    | _ => raise Error("TypeChecker.checkExp", (~1, ~1))
+
+
+
+
+| In.ArrCompr (e, list_bind, list_check_exp, _, _ , pos) =>
+
+        let fun split (str : string, exp : In.Exp)  = 
+            let val (tpexp1, exp_dec1) = checkExp ftab vtab exp in (str, tpexp1) end
+        val id_type_list = map split list_bind
+            fun newSymTab ((id : string, tp : Type), stab) = 
+                SymTab.bind id tp stab 
+            val new_vtab = foldl newSymTab vtab id_type_list
+            val (type_dec, exp_dec) = checkExp ftab new_vtab e
+        in (Array type_dec, Out.ArrCompr(exp_dec, [], [], type_dec, [], pos ) )
+    end
+
 
 and checkFunArg (In.FunName fname, vtab, ftab, pos) =
     (case SymTab.lookup fname ftab of
