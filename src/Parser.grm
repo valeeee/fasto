@@ -37,6 +37,7 @@ open Fasto.UnknownTypes
 %type <Fasto.Param list> Params
 %type <Fasto.UnknownTypes.Exp> Exp
 %type <Fasto.UnknownTypes.Exp list> Exps
+%type <Fasto.UnknownTypes.Exp list> Cond
 %type <Fasto.UnknownTypes.FunArg> FunArg
 %type <Fasto.UnknownTypes.FunArg> BinOp
 %type <(string*Fasto.UnknownTypes.Exp)> ArrayExpr
@@ -154,15 +155,21 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
         | ID LBRACKET Exp RBRACKET
                         { Index (#1 $1, $3, (), $2) }
   
-        | LCURLY Exp '|' ArrayExprs RCURLY {ArrCompr ($2,$4,[],(),[],$1)}
+        | LCURLY Exp '|' ArrayExprs '|' Cond RCURLY {ArrCompr ($2,$4,$6,(),[],$1)}
 
 ;
 
-ArrayExpr:   ID COMMA Exp {(#1 $1 ,$3)}
+ArrayExpr:   LPAR ID COMMA Exp RPAR {(#1 $2 ,$4)}
+
+;
 
 
-ArrayExprs:  ArrayExpr '|' ArrayExprs {$1 :: $3}
-        | ArrayExpr {$1 :: []}
+ArrayExprs:  ArrayExpr COMMA ArrayExprs {$1 :: $3}
+           | ArrayExpr {$1 :: []}
+
+;
+
+Cond:        LPAR Exps RPAR {$2}
 
 ;
 

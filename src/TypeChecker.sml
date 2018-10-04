@@ -369,16 +369,39 @@ and checkExp ftab vtab (exp : In.Exp)
 
 
 
-| In.ArrCompr (e, list_bind, list_check_exp, _, _ , pos) =>
+| In.ArrCompr (e, list_bind, list_conds_exp, _, _ , pos) =>
 
+(*split function check that all the expressions in list_bind are Array type and if so returns a triple (str, tp, exp_decl) *)
         let fun split (str : string, exp : In.Exp)  = 
-            let val (tpexp1, exp_dec1) = checkExp ftab vtab exp in (str, tpexp1) end
-        val id_type_list = map split list_bind
+            let val (tpexp, exp_dec1) = checkExp ftab vtab exp 
+                val elem_type = case tpexp of
+                   Array t => t
+                 | other   => raise Error ("Error: Argument not an array", pos)
+                 in (str, elem_type, exp_dec1) end
+
+            val id_type_expdecl_list = map split list_bind
+(*id_type_list_split function takes a triple and returns just the tuple (str, tp)*)
+            fun id_type_list_split (str: string, tp: Type, exp_dec)= (str, tp)
+            val id_type_list = map id_type_list_split id_type_expdecl_list
+            fun id_expdecl_list_split (str: string, tp: Type, exp_dec) = (str,exp_dec)
+            val id_expdecl_list = map id_expdecl_list_split id_type_expdecl_list (*str, exp_dec*)
+            fun type_list_split (str: string, tp: Type, exp_dec) = tp
+            val type_list = map type_list_split id_type_expdecl_list
+(* newSymTab fun declaration*)
             fun newSymTab ((id : string, tp : Type), stab) = 
                 SymTab.bind id tp stab 
+(* new_vtab with the binding of the variable name of the list_bind expr in order to use them later in the construction of final e expression*)
             val new_vtab = foldl newSymTab vtab id_type_list
             val (type_dec, exp_dec) = checkExp ftab new_vtab e
-        in (Array type_dec, Out.ArrCompr(exp_dec, [], [], type_dec, [], pos ) )
+            val type_exp_decl_cond_list = map (checkExp ftab new_vtab) list_conds_exp (*Bool, exp_decl*)
+            fun exp_decl_cond_split (tp:Type, exp_decl) = exp_decl
+            val exp_decl_cond_list = map exp_decl_cond_split type_exp_decl_cond_list
+            fun check_bool (tp : Type, _) = 
+                case tp of
+                Bool => tp 
+                |_ => raise Error ("Cond is not a boolean expression", pos)
+           val filtered_exp = map check_bool type_exp_decl_cond_list
+        in (Array type_dec, Out.ArrCompr(exp_dec, id_expdecl_list, exp_decl_cond_list, type_dec, type_list, pos ) )
     end
 
 
