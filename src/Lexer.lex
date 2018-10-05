@@ -92,6 +92,7 @@ rule Token = parse
 			     getPos lexbuf) }
 
   | `+`                 { Parser.PLUS   (getPos lexbuf) }
+  | `|`                 { Parser.BAR   (getPos lexbuf) }
   | `-`                 { Parser.MINUS  (getPos lexbuf) }
   | "::"                { Parser.APPEND  (getPos lexbuf) }
   | `*`                 { Parser.TIMES  (getPos lexbuf) }
