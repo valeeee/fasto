@@ -1,12 +1,6 @@
 (* Types and utilities for the abstract syntax of Fasto. *)
 
-(*
 
-Fasto er et funktionelt array-sprog til oversættelse, F-A-S-T-O.
-Fasto er også et spansk ord, der betyder "pomp" eller "pragt".
-Derfor skal vi programmere en "pragtfuld" oversætter for Fasto.
-
-*)
 
 structure Fasto = struct
 
@@ -91,7 +85,7 @@ functor FastoFn (T : sig eqtype TypeAnnot end) = struct
     | Read of Type * pos
     | Write of Exp * T.TypeAnnot * pos
 
-    (* The following are project tasks. *)
+ 
     | Filter of FunArg * Exp * T.TypeAnnot * pos           (* filter(f, arr) *)
     | Scan of FunArg * Exp * Exp * T.TypeAnnot * pos      (* scan(f, 0, arr) *)
     | Times of Exp * Exp * pos
@@ -101,7 +95,7 @@ functor FastoFn (T : sig eqtype TypeAnnot end) = struct
     | Not of Exp * pos
     | Negate of Exp * pos
     | ArrCompr of Exp * (string * Exp) list * Exp list *
-            T.TypeAnnot * T.TypeAnnot list * pos    (* {e | x <- xs | x > y} *)
+            T.TypeAnnot * T.TypeAnnot list * pos    (* {e | (x, xs) | x > y} *)
 
   and Dec = Dec of string * Exp * pos
 
