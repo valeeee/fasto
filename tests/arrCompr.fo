@@ -1,0 +1,11 @@
+//prende numeri dispari di un array e li trasforma in pari 
+
+fun bool isOdd(int x) = not x == (x / 2) * 2
+
+fun int sum ([int] xs) = reduce(fn int (int x, int y) => x + y, 0, xs)
+
+fun [int] main() =
+  let n = read(int) in
+  let xs = iota(n) in
+  let ys = { x * 2 | (x,xs) | isOdd(x) } in
+    ys

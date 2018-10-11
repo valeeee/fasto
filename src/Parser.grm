@@ -155,6 +155,7 @@ Exp :     NUM            { Constant (IntVal (#1 $1), #2 $1) }
                         { Index (#1 $1, $3, (), $2) }
   
         | LCURLY Exp BAR ArrayExprs BAR Exps RCURLY {ArrCompr ($2,$4,$6,(),[],$1)}
+        | LCURLY Exp BAR ArrayExprs RCURLY {ArrCompr ($2,$4,[],(),[],$1)}
 
 ;
 
