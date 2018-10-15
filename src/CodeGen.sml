@@ -234,6 +234,11 @@ structure CodeGen = struct
             val code2 = compileExp e2 vtable t2
         in code1 @ code2 @ [Mips.ADD (place,t1,t2)]
         end
+
+(*ArrCompr of Exp * (string * Exp) list * Exp list *
+            T.TypeAnnot * T.TypeAnnot list * pos   *) 
+
+
         
     | Minus (e1, e2, pos) =>
         let val t1 = newName "minus_L"

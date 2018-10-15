@@ -7,5 +7,5 @@ fun [int] main() =
   let xs = iota(n) in
   let ys = { x * 2 | (x, xs) | isOdd(x) } in
   let z = { x | (x, xs) | isOdd(x) } in 
-  let z1 = {r | (r,iota(3*2))|r<90} in 
+  let z1 = {r | (r,iota(3*2))} in 
   z1

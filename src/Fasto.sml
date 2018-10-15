@@ -193,7 +193,7 @@ functor FastoFn (T : sig eqtype TypeAnnot end) = struct
     | ppExp d (Write (e,t,p)) = concat [ "write(", ppExp d e, ")" ]
 
   and ppBindings bs = String.concatWith ", "
-            (map (fn (n, e) => n ^ " <- " ^ ppExp 0 e) bs)
+            (map (fn (n, e) => "(" ^ n ^ ", " ^ ppExp 0 e ^ ")") bs)
 
   and ppVal d (IntVal   n)  = Int.toString n
     | ppVal d (BoolVal   b) = Bool.toString b
