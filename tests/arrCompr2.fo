@@ -1,11 +1,16 @@
-fun bool isOdd(int x) = not x == (x / 2) * 2
+//legge un intero n e crea un array con iota(n), poi fa passare tutti i valori scegliendo i dispari e moltiplicandoli per 2
+
+//fun bool isOdd(int x) = not x == (x / 2) * 2
+fun [int] writeIntArr([int] x) = map(writeInt, x)
+fun  int  writeInt  ( int i ) = 
+        let s = write ("\t") in
+        let y = write (i) in 
+        let z = write ("\t") in y
 
 fun int sum ([int] xs) = reduce(fn int (int x, int y) => x + y, 0, xs)
 
 fun [int] main() =
-  let n = read(int) in
+  let n = 3 in
   let xs = iota(n) in
-  let ys = { x * 2 | (x, xs) | isOdd(x) } in
-  let z = { x | (x, xs) | isOdd(x) } in 
-  let z1 = {r | (r,iota(3*2))} in 
-  z1
+  let ys = { x * 2 | (x, xs) } in
+   writeIntArr(ys)

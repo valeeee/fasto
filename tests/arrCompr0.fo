@@ -1,6 +1,7 @@
 fun [[int]] main () = 
 //  let res = map(fn [int] (int x) =>
-//     map(fn int (int y) => x + y, iota(3)),
-//                 iota(2)) in res         
+ //  map(fn int (int y) => x + y, iota(3)),
+  //              iota(2)) in res          
 
-let res = {x+y | (x, iota(2)), (y, iota (3))} in res
+{x+y | (x, iota(2)), (y, iota (3))} 
+ 

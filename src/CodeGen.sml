@@ -235,9 +235,6 @@ structure CodeGen = struct
         in code1 @ code2 @ [Mips.ADD (place,t1,t2)]
         end
 
-(*ArrCompr of Exp * (string * Exp) list * Exp list *
-            T.TypeAnnot * T.TypeAnnot list * pos   *) 
-
 
         
     | Minus (e1, e2, pos) =>
@@ -835,14 +832,49 @@ structure CodeGen = struct
          @ compute_size
         end
 
-
-  (* TODO TASK 5: add case for ArrCompr.
-
-   A good solution is to transform the array comprehension to an
+   (* ArrCompr implement. A good solution is to transform the array comprehension to an
    expression using map and filter, then run compileExp on that. *)
 
-  | _ => raise Error ("CodeGen.compileExp not Implemented.", (~1, ~1))
+  | ArrCompr (e, bs, c, te, tbs, pos) => 
+    let 
+    fun countType t [] = t
+    | countType t (x::xs) = Array(countType t xs) 
 
+    fun arrayType ( Array (t) ) = t
+    | arrayType ( a ) = raise Error("One of the binding expressions is not an array.", pos)
+
+    fun ConvFilter (c :: cs, pos) = And ( c, ConvFilter( cs, pos), pos)  
+    | ConvFilter ([] , pos ) = Constant(BoolVal(true), pos)
+
+    fun Conv (e, (s, be) :: [], conds, tp, tb :: [], pos, tr) = 
+        let 
+        val tr' = arrayType tr
+        val lambdaFilter = Lambda(Bool, [Param(s, tb)], ConvFilter( conds, pos ), pos)
+        val fil = Filter(lambdaFilter, be,  tb, pos)
+        in Map(Lambda(tp,  [Param(s, tb)], e, pos), fil , tb, Bool, pos )
+        end
+
+    | Conv (e, (s, be) :: bs, conds, tp, tb :: tbs, pos, tr) = 
+        let 
+        val tr' = arrayType tr
+        val con = Conv(e, bs, conds, tp, tbs, pos,tr')
+        val lam = Lambda(tr', [Param(s, tb)], con, pos)
+        in Map(lam, be, tb, tr, pos)
+        end
+    | Conv (e, _ , conds, tp, _, pos, tr) = raise Error("Missing type", (0,0))
+
+
+(*Filter = FunArg * Exp * T.TypeAnnot (typearray) * pos *)
+ (*Map of FunArg * Exp * T.TypeAnnot--->(array) * T.TypeAnnot---->(funret) * pos  *)
+ (* countType te tbs - serve a passare correttamente come parametro il tipo restituito T.TypeAnnot restituito da FunArg *)
+    val tr = countType te tbs
+    val expr = Conv (e, bs, c, te, tbs, pos, tr)
+    val p = print (ppExp 0 expr)
+    val p' = print "\n"
+    in compileExp expr vtable place
+
+    end 
+    
   and applyFunArg (FunName s, args, vtable, place, pos) : Mips.Prog =
       let val tmp_reg = newName "tmp_reg"
       in  applyRegs(s, args, tmp_reg, pos) @ [Mips.MOVE(place, tmp_reg)] end
